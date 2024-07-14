@@ -1,6 +1,7 @@
 import sys, pygame
 from chess_engine import *
 from vars import *
+from colours import *
 
 class Main:
     def __init__(self):
@@ -25,16 +26,22 @@ class Main:
         pygame.display.set_caption("Chess AI")
     
     def main_loop(self):
+        colour = 0
         screen = self.screen
         running = True
         while running:
             screen.fill((255, 255, 255))
-            colour = (0, 255, 0)
-            self.draw_squares(screen, colour)
-            self.draw_pieces()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_LCTRL:
+                        colour += 1
+                        print(colour)
+                        if colour == 12:
+                            colour = 0
+            self.draw_squares(screen, colours[colour])
+            self.draw_pieces()
             pygame.display.flip()
         
         pygame.quit()
