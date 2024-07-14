@@ -21,7 +21,6 @@ class Main:
                   "bK": pygame.transform.scale(pygame.image.load("assets/bK.png"), (SQSIZE, SQSIZE)),
                   "bp": pygame.transform.scale(pygame.image.load("assets/bp.png"), (SQSIZE, SQSIZE)),
                   }
-        self.keys = ("wR", "wN", "wB", "wQ", "wK", "wp", "bR", "bN", "bB", "bQ", "bK", "bp")
     
     def main_loop(self):
         screen = self.screen
@@ -29,7 +28,8 @@ class Main:
         while running:
             screen.fill((255, 255, 255))
             colour = (0, 255, 0)
-            self.draw_square(screen, colour)
+            self.draw_squares(screen, colour)
+            self.draw_pieces()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -38,11 +38,18 @@ class Main:
         pygame.quit()
         sys.exit()
 
-    def draw_square(self, surface, colour):
-         for row in range(ROWSIZE):
-                for col in range(COLSIZE):
-                    if (row + col) % 2 == 1:
-                        pygame.draw.rect(surface, colour, (row * SQSIZE, col * SQSIZE, SQSIZE, SQSIZE))
+    def draw_squares(self, surface, colour):
+        for row in range(ROWSIZE):
+            for col in range(COLSIZE):
+                if (row + col) % 2 == 1:
+                    pygame.draw.rect(surface, colour, (row * SQSIZE, col * SQSIZE, SQSIZE, SQSIZE))
+    
+    def draw_pieces(self):
+        for row in range(ROWSIZE):
+            for col in range(COLSIZE):
+                if self.board[row][col] != "--":
+                    self.screen.blit(self.pieces[self.board[row][col]], (col * SQSIZE, row * SQSIZE))
+            
 
 
 main = Main()
