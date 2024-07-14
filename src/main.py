@@ -21,6 +21,8 @@ class Main:
                   "bK": pygame.transform.scale(pygame.image.load("assets/bK.png"), (SQSIZE, SQSIZE)),
                   "bp": pygame.transform.scale(pygame.image.load("assets/bp.png"), (SQSIZE, SQSIZE)),
                   }
+        pygame.display.set_icon(pygame.image.load("assets/icon/icon.png"))
+        pygame.display.set_caption("Chess AI")
     
     def main_loop(self):
         screen = self.screen
