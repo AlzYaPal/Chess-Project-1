@@ -45,7 +45,6 @@ class Main:
                         if colour == 12:
                             colour = 0
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    print(self.clicks)
                     pos = pygame.mouse.get_pos()
                     squares.append(pos[1] // SQSIZE)
                     squares.append(pos[0] // SQSIZE)
@@ -53,14 +52,11 @@ class Main:
                     
                     if board[squares[-2]][squares[-1]] != "--" and self.clicks == 0:
                         self.clicks = 1
-                        print("True")
                     elif self.clicks == 1:
-                        print("Done")
                         self.clicks = 0
                         board[squares[2]][squares[3]] = board[squares[0]][squares[1]]
                         board[squares[0]][squares[1]] = "--"
                         squares = []
-                        print(board)
                     else:
                         for i in range(2):
                             squares.pop(-1)
