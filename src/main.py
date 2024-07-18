@@ -22,12 +22,17 @@ class Main:
                   "bK": pygame.transform.scale(pygame.image.load("assets/bK.png"), (SQSIZE, SQSIZE)),
                   "bp": pygame.transform.scale(pygame.image.load("assets/bp.png"), (SQSIZE, SQSIZE)),
                   }
+        self.clicks = 0
+        self.squares = []
+
         pygame.display.set_icon(pygame.image.load("assets/icon/icon.png"))
         pygame.display.set_caption("Chess AI")
     
     def main_loop(self):
         colour = 0
         screen = self.screen
+        board = self.board
+        squares = self.squares
         running = True
         while running:
             screen.fill((255, 255, 255))
@@ -37,11 +42,33 @@ class Main:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LCTRL:
                         colour += 1
-                        print(colour)
                         if colour == 12:
                             colour = 0
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    print(self.clicks)
+                    pos = pygame.mouse.get_pos()
+                    squares.append(pos[1] // SQSIZE)
+                    squares.append(pos[0] // SQSIZE)
+                    
+                    
+                    if board[squares[-2]][squares[-1]] != "--" and self.clicks == 0:
+                        self.clicks = 1
+                        print("True")
+                    elif self.clicks == 1:
+                        print("Done")
+                        self.clicks = 0
+                        board[squares[2]][squares[3]] = board[squares[0]][squares[1]]
+                        board[squares[0]][squares[1]] = "--"
+                        squares = []
+                        print(board)
+                    else:
+                        for i in range(2):
+                            squares.pop(-1)
+                    
+
+
             self.draw_squares(screen, colours[colour])
-            self.draw_pieces()
+            self.draw_pieces(board)
             pygame.display.flip()
         
         pygame.quit()
@@ -53,10 +80,10 @@ class Main:
                 if (row + col) % 2 == 1:
                     pygame.draw.rect(surface, colour, (row * SQSIZE, col * SQSIZE, SQSIZE, SQSIZE))
     
-    def draw_pieces(self):
+    def draw_pieces(self, board):
         for row in range(ROWSIZE):
             for col in range(COLSIZE):
-                if self.board[row][col] != "--":
+                if board[row][col] != "--":
                     self.screen.blit(self.pieces[self.board[row][col]], (col * SQSIZE, row * SQSIZE))
             
 
