@@ -1,6 +1,3 @@
-import pygame
-pygame.init()
-
 class Engine:
     def __init__(self):
         self.board = [
