@@ -2,6 +2,7 @@ import sys, pygame
 from chess_engine import *
 from vars import *
 from colours import *
+from graphics import *
 
 class Main:
     def __init__(self):
@@ -33,6 +34,7 @@ class Main:
         screen = self.screen
         board = self.board
         squares = self.squares
+        engine = self.engine
         running = True
         while running:
             screen.fill((255, 255, 255))
@@ -44,6 +46,19 @@ class Main:
                         colour += 1
                         if colour == 12:
                             colour = 0
+                    elif event.key == pygame.K_z:
+                        try:
+                            move = engine.moveLog[-1]
+                            print(move)
+                            squares = move[0]
+                            piece = move[1]
+                            board[int(squares[0])][int(squares[1])] = board[int(squares[2])][int(squares[3])]
+                            board[int(squares[2])][int(squares[3])] = piece
+                            engine.moveLog.pop(-1)
+                            squares = []
+                        except IndexError:
+                            pass
+
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
                     squares.append(pos[1] // SQSIZE)
@@ -54,33 +69,23 @@ class Main:
                         self.clicks = 1
                     elif self.clicks == 1:
                         self.clicks = 0
+                        engine.moveLog.append((str(squares[0]) + str(squares[1]) + str(squares[2]) + str(squares[3]), board[squares[2]][squares[3]]))
                         board[squares[2]][squares[3]] = board[squares[0]][squares[1]]
                         board[squares[0]][squares[1]] = "--"
                         squares = []
+                        print(engine.moveLog)
                     else:
                         for i in range(2):
                             squares.pop(-1)
                     
 
 
-            self.draw_squares(screen, colours[colour])
-            self.draw_pieces(board)
+            Graphics.draw_squares(screen, colours[colour])
+            Graphics.draw_pieces(screen, board, self.pieces)
             pygame.display.flip()
         
         pygame.quit()
         sys.exit()
-
-    def draw_squares(self, surface, colour):
-        for row in range(ROWSIZE):
-            for col in range(COLSIZE):
-                if (row + col) % 2 == 1:
-                    pygame.draw.rect(surface, colour, (row * SQSIZE, col * SQSIZE, SQSIZE, SQSIZE))
-    
-    def draw_pieces(self, board):
-        for row in range(ROWSIZE):
-            for col in range(COLSIZE):
-                if board[row][col] != "--":
-                    self.screen.blit(self.pieces[self.board[row][col]], (col * SQSIZE, row * SQSIZE))
             
 
 
