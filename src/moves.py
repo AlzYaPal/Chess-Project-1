@@ -22,33 +22,58 @@ class Moves:
                 if board[row][col][0] == turn:
                     piece = board[row][col][1]
                     if piece == 'p':
-                        self.getPawnMoves(row, col, moves)
+                        self.getPawnMoves(row, col, moves, board, turn)
                     elif piece == 'N':
-                        self.getKnightMoves(row, col, moves)
+                        self.getKnightMoves(row, col, moves, board)
                     elif piece == 'B':
-                        self.getBishopMoves(row, col, moves)
+                        self.getBishopMoves(row, col, moves, board)
                     elif piece == 'R':
-                        self.getRookMoves(row, col, moves)
+                        self.getRookMoves(row, col, moves, board)
                     elif piece == 'Q':
-                        self.getQueenMoves(row, col, moves)
+                        self.getQueenMoves(row, col, moves, board)
                     elif piece == 'K':
-                        self.getKingMoves(row, col, moves)
+                        self.getKingMoves(row, col, moves, board)
         return moves
     
-    def getPawnMoves(self, r, c, moves):
+    def getPawnMoves(self, r, c, moves, board, turn):
+        print(turn)
+        if turn == 'w':
+            if board[r-1][c] == "--" and r != 0:
+                moves.append(str(r) + str(c) + str(r-1) + str(c))
+                if r == 6 and board[r-2][c] == "--":
+                    moves.append(str(r) + str(c) + str(r-2) + str(c))
+            if c != 0:
+                if board[r-1][c-1] != "--" and board[r-1][c-1][0] != turn and r != 0:
+                    moves.append(str(r) + str(c) + str(r-1) + str(c-1))
+            if c != 7:
+                if board[r-1][c+1] != "--" and board[r-1][c+1][0] != turn and r != 0:
+                    moves.append(str(r) + str(c) + str(r-1) + str(c+1))
+
+        else:
+            if board[r+1][c] == "--" and r != 7:
+                moves.append(str(r) + str(c) + str(r+1) + str(c))
+                if r == 1 and board[r+2][c] == "--":
+                    moves.append(str(r) + str(c) + str(r+2) + str(c))
+            if c != 0:
+                if board[r+1][c-1] != "--" and board[r+1][c-1][0] != turn and r != 0:
+                    moves.append(str(r) + str(c) + str(r+1) + str(c-1))
+            if c != 7:
+                if board[r+1][c+1] != "--" and board[r+1][c+1][0] != turn and r != 0:
+                    moves.append(str(r) + str(c) + str(r+1) + str(c+1))
+            
+            
+
+    def getKnightMoves(self, r, c, moves, board):
         pass
 
-    def getKnightMoves(self, r, c, moves):
+    def getBishopMoves(self, r, c, moves, board):
         pass
 
-    def getBishopMoves(self, r, c, moves):
+    def getRookMoves(self, r, c, moves, board):
         pass
 
-    def getRookMoves(self, r, c, moves):
+    def getQueenMoves(self, r, c, moves, board):
         pass
 
-    def getQueenMoves(self, r, c, moves):
-        pass
-
-    def getKingMoves(self, r, c, moves):
+    def getKingMoves(self, r, c, moves, board):
         pass

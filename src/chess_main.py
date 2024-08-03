@@ -66,6 +66,13 @@ class Main:
                             whiteToMove = not whiteToMove
                         except IndexError:
                             pass
+                    elif event.key == pygame.K_x:
+                        self.clicks = 0
+                        try:
+                            for i in range(2):
+                                squares.pop(-1)
+                        except IndexError:
+                            pass
 
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
@@ -81,7 +88,7 @@ class Main:
                         pieceTaken = board[squares[2]][squares[3]]
 
                         if move in validMoves:
-                            engine.moveLog.append(move)
+                            engine.moveLog.append((move, board[squares[2]][squares[3]]))
                             board[squares[2]][squares[3]] = board[squares[0]][squares[1]]
                             board[squares[0]][squares[1]] = "--"
                             squares = []
@@ -89,11 +96,15 @@ class Main:
                             moveMade = True
                         else:
                             clicks = 0
+                            squares = []
+
                     else:
                         for i in range(2):
                             squares.pop(-1)
             if moveMade:
+                whiteToMove = not whiteToMove
                 validMoves = moves.getValidMoves(whiteToMove, board)
+                print(whiteToMove)
                 moveMade = False
                     
 
