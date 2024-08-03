@@ -63,7 +63,7 @@ class Main:
                             engine.moveLog.pop(-1)
                             squares = []
                             moveMade = True
-                            whiteToMove = not whiteToMove
+                            print(whiteToMove)
                         except IndexError:
                             pass
                     elif event.key == pygame.K_x:
