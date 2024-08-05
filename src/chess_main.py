@@ -103,13 +103,16 @@ class Main:
             if moveMade:
                 if whiteToMove:
                     wKingLocation = moves.getKingLocation(whiteToMove, board)
-                    print(wKingLocation)
                 else:
                     bKingLocation = moves.getKingLocation(whiteToMove, board)
-                    print(bKingLocation)
 
                 whiteToMove = not whiteToMove
                 validMoves = moves.getValidMoves(whiteToMove, board)
+                if whiteToMove:
+                    checks = moves.searchForPinsAndChecks(wKingLocation, board, whiteToMove)
+                else:
+                    checks = moves.searchForPinsAndChecks(bKingLocation, board, whiteToMove)
+                print(checks)
                 moveMade = False
                     
 
