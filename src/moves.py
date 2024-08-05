@@ -1,7 +1,7 @@
 from vars import *
 
 class Moves:
-    def __init__(self):
+    def __init__(self, board):
         self.ranksToRows = {"1": 7, "2": 6, "3": 5, "4": 4, 
                             "5": 3, "6": 2, "7": 1, "8": 0}
         self.rowsToRanks = {v: k for k, v in self.ranksToRows.items()}
@@ -9,9 +9,28 @@ class Moves:
                             "e": 5, "f": 6, "g": 7, "h": 8}
         self.colsToFiles = {v: k for k, v in self.filesToCols.items()}
 
+        for r in range(ROWSIZE):
+            for c in range(COLSIZE):
+                if board[r][c] == "wK":
+                    self.wKingLocation = (r, c)
+                elif board[r][c] == "bK":
+                    self.bKingLocation = (r, c)
+
+    def getKingLocation(self, whiteToMove, board):
+        if whiteToMove:
+            for r in range(ROWSIZE):
+                for c in range(COLSIZE):
+                    if board[r][c] == "wK":
+                        return (r, c)
+        else:
+            for r in range(ROWSIZE):
+                for c in range(COLSIZE):
+                    if board[r][c] == "bK":
+                        return (r, c)
+
+
     def getValidMoves(self, whiteToMove, board):
         possibleMoves = self.getAllPossibleMoves(whiteToMove, board)
-        print(possibleMoves)
         return possibleMoves
 
 
@@ -37,7 +56,6 @@ class Moves:
         return moves
     
     def getPawnMoves(self, r, c, moves, board, colour):
-        print(colour)
         if colour == 'w':
             if board[r-1][c] == "--" and r != 0:
                 moves.append(str(r) + str(c) + str(r-1) + str(c))

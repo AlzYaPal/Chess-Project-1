@@ -38,8 +38,10 @@ class Main:
         whiteToMove = self.whiteToMove
         squares = self.squares
         engine = self.engine
-        moves = Moves()
-        validMoves = moves.getValidMoves(whiteToMove, board)
+        moves = Moves(board)
+        wKingLocation = moves.getKingLocation(True, board)
+        bKingLocation = moves.getKingLocation(False, board)
+        validMoves  = moves.getValidMoves(whiteToMove, board)
         moveMade = False #Flag for when a move is made
         running = True
         while running:
@@ -55,7 +57,6 @@ class Main:
                     elif event.key == pygame.K_z:
                         try:
                             move = engine.moveLog[-1]
-                            print(move)
                             squares = move[0]
                             piece = move[1]
                             board[int(squares[0])][int(squares[1])] = board[int(squares[2])][int(squares[3])]
@@ -63,7 +64,6 @@ class Main:
                             engine.moveLog.pop(-1)
                             squares = []
                             moveMade = True
-                            print(whiteToMove)
                         except IndexError:
                             pass
                     elif event.key == pygame.K_x:
@@ -92,7 +92,6 @@ class Main:
                             board[squares[2]][squares[3]] = board[squares[0]][squares[1]]
                             board[squares[0]][squares[1]] = "--"
                             squares = []
-                            print(engine.moveLog)
                             moveMade = True
                         else:
                             clicks = 0
@@ -102,9 +101,15 @@ class Main:
                         for i in range(2):
                             squares.pop(-1)
             if moveMade:
+                if whiteToMove:
+                    wKingLocation = moves.getKingLocation(whiteToMove, board)
+                    print(wKingLocation)
+                else:
+                    bKingLocation = moves.getKingLocation(whiteToMove, board)
+                    print(bKingLocation)
+
                 whiteToMove = not whiteToMove
                 validMoves = moves.getValidMoves(whiteToMove, board)
-                print(whiteToMove)
                 moveMade = False
                     
 
