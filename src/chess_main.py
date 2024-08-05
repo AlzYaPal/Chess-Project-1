@@ -11,18 +11,18 @@ class Main:
         self.engine = Engine()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.board = self.engine.get_board()
-        self.pieces = {"wR": pygame.transform.scale(pygame.image.load("assets/wR.png"), (SQSIZE, SQSIZE)),
-                  "wN": pygame.transform.scale(pygame.image.load("assets/wN.png"), (SQSIZE, SQSIZE)),
-                  "wB": pygame.transform.scale(pygame.image.load("assets/wB.png"), (SQSIZE, SQSIZE)),
-                  "wQ": pygame.transform.scale(pygame.image.load("assets/wQ.png"), (SQSIZE, SQSIZE)),
-                  "wK": pygame.transform.scale(pygame.image.load("assets/wK.png"), (SQSIZE, SQSIZE)),
-                  "wp": pygame.transform.scale(pygame.image.load("assets/wp.png"), (SQSIZE, SQSIZE)),
-                  "bR": pygame.transform.scale(pygame.image.load("assets/bR.png"), (SQSIZE, SQSIZE)),
-                  "bN": pygame.transform.scale(pygame.image.load("assets/bN.png"), (SQSIZE, SQSIZE)),
-                  "bB": pygame.transform.scale(pygame.image.load("assets/bB.png"), (SQSIZE, SQSIZE)),
-                  "bQ": pygame.transform.scale(pygame.image.load("assets/bQ.png"), (SQSIZE, SQSIZE)),
-                  "bK": pygame.transform.scale(pygame.image.load("assets/bK.png"), (SQSIZE, SQSIZE)),
-                  "bp": pygame.transform.scale(pygame.image.load("assets/bp.png"), (SQSIZE, SQSIZE)),
+        self.pieces = {"wR": pygame.transform.scale(pygame.image.load("assets/pieces/wR.png"), (SQSIZE, SQSIZE)),
+                  "wN": pygame.transform.scale(pygame.image.load("assets/pieces/wN.png"), (SQSIZE, SQSIZE)),
+                  "wB": pygame.transform.scale(pygame.image.load("assets/pieces/wB.png"), (SQSIZE, SQSIZE)),
+                  "wQ": pygame.transform.scale(pygame.image.load("assets/pieces/wQ.png"), (SQSIZE, SQSIZE)),
+                  "wK": pygame.transform.scale(pygame.image.load("assets/pieces/wK.png"), (SQSIZE, SQSIZE)),
+                  "wp": pygame.transform.scale(pygame.image.load("assets/pieces/wp.png"), (SQSIZE, SQSIZE)),
+                  "bR": pygame.transform.scale(pygame.image.load("assets/pieces/bR.png"), (SQSIZE, SQSIZE)),
+                  "bN": pygame.transform.scale(pygame.image.load("assets/pieces/bN.png"), (SQSIZE, SQSIZE)),
+                  "bB": pygame.transform.scale(pygame.image.load("assets/pieces/bB.png"), (SQSIZE, SQSIZE)),
+                  "bQ": pygame.transform.scale(pygame.image.load("assets/pieces/bQ.png"), (SQSIZE, SQSIZE)),
+                  "bK": pygame.transform.scale(pygame.image.load("assets/pieces/bK.png"), (SQSIZE, SQSIZE)),
+                  "bp": pygame.transform.scale(pygame.image.load("assets/pieces/bp.png"), (SQSIZE, SQSIZE)),
                   }
         self.clicks = 0
         self.squares = []
