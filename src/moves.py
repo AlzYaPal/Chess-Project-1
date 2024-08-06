@@ -148,7 +148,6 @@ class Moves:
 
 
     def searchForPinsAndChecks(self, kingLocation, board, whiteToMove):
-        print(whiteToMove)
         directions = ((1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, 1), (-1, -1), (1, -1))
         allyColour = "w" if whiteToMove else "b"
         enemyColour = "w" if allyColour == "b" else "b"
@@ -164,7 +163,7 @@ class Moves:
         checks.append(self.findPawnChecks(kingLocation, board, enemyColour))
         if checks == [[]]:
             checks = []
-        return checks
+        self.findRookQueenChecks(kingLocation, board, allyColour, enemyColour)
         
         
     def findKnightChecks(self, kingLocation, board, enemyColour):
@@ -174,7 +173,6 @@ class Moves:
             try:
                 if board[kingLocation[0] + d[0]][kingLocation[1] + d[1]] == (enemyColour + "N") and 0 <= (kingLocation[0] + d[0]) <= 7 and 0 <= (kingLocation[1] + d[1]) <= 7:
                     checks.append((kingLocation[0] + d[0], kingLocation[1] + d[1]))
-                    print(checks)
             except IndexError:
                 pass
         return checks
@@ -188,24 +186,81 @@ class Moves:
                 if kingLocation[1] != 7:
                     if board[kingLocation[0] + 1][kingLocation[1] + 1] == 'wp':
                         checks.append((kingLocation[0] + 1, kingLocation[1] + 1))
-                        print("Check Found")
-                        print(checks)
                 if kingLocation[1] != 0:
                     if board[kingLocation[0] + 1][kingLocation[1] - 1] == 'wp':
                         checks.append((kingLocation[0] + 1, kingLocation[1] - 1))
-                        print("Check Found")
-                        print(checks)
         else:
             if kingLocation[0] != 0:
                 if kingLocation[1] != 7:
                     if board[kingLocation[0] - 1][kingLocation[1] + 1] == 'bp':
                         checks.append((kingLocation[0] - 1, kingLocation[1] + 1))
-                        print("Check Found")
-                        print(checks)
                 if kingLocation[1] != 0:
                     if board[kingLocation[0] - 1][kingLocation[1] - 1] == 'bp':
                         checks.append((kingLocation[0] - 1, kingLocation[1] - 1))
-                        print("Check Found")
-                        print(checks)
-        
+        return checks
+
+    def findRookQueenChecks(self, kingLocation, board, allyColour, enemyColour):
+        RCIChecks = []
+        RCIPins = []
+        checks = []
+        potentialPins = []
+        pins = []
+        directions = ((1, 0), (0, 1), (-1, 0), (0, -1))
+        r = kingLocation[0]
+        c = kingLocation[1]
+        boardRow = board[r]
+        boardCol = []
+        for i in range(COLSIZE):
+            boardCol.append(board[i][c])
+        boardRowLeft = boardRow[:c + 1]
+        boardRowRight = boardRow[c:]
+        boardColLeft = boardCol[:r +1]
+        boardColRight = boardCol[r:]
+        boardRowLeftReorder = []
+        boardColLeftReorder = []
+        for i in range(len(boardRowLeft)):
+            index = -1 * (i + 1)
+            boardRowLeftReorder.append(boardRowLeft[index])
+            boardColLeftReorder.append(boardRowLeft[index])
+        boardRowLeft = boardRowLeftReorder
+        boardColLeft = boardColLeftReorder
+        RCIndex = [boardRowLeft, boardRowRight, boardColLeft, boardColRight]
+        for i in range(len(RCIndex)):
+            alliesFound = 0
+            for j in range(1, len(RCIndex[i])):
+                if RCIndex[i][j][0] == allyColour:
+                    if alliesFound == 0:
+                        alliesFound = 1
+                        potentialPins.append((i, j))
+                    else:
+                        potentialPins = []
+                        break
+                elif RCIndex[i][j][0] == enemyColour and (RCIndex[i][j][1] == 'R' or RCIndex[i][j][1] == 'Q'):
+                    if alliesFound == 1:
+                        RCIPins.append(potentialPins)
+                        potentialPins = []
+                    else:
+                        RCIChecks.append([i, j])
+        if RCIPins != []:
+            for i in range(len(RCIPins)):
+                pin = RCIPins[i]
+                if pin[0] == 0:
+                    pins.append((r, c - pin[1]))
+                elif pin[0] == 1:
+                    pins.append((r, c + pin[1]))
+                elif pin[0] == 2:
+                    pins.append((r - pin[1], c))
+                else:
+                    pins.append((r + pin[1], c))
+
+        if RCIChecks != []:
+            check = RCIChecks[0]
+            if check[0] == 0:
+                checks.append((r, c - check[1]))
+            elif check[0] == 1:
+                checks.append((r, c + check[1]))
+            elif check[0] == 2:
+                checks.append((r - check[1], c))
+            else:
+                checks.append((r + check[1], c))
         return checks
