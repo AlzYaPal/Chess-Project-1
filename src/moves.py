@@ -244,17 +244,20 @@ class Moves:
         if RCIPins != []:
             for i in range(len(RCIPins)):
                 pin = RCIPins[i]
-                if pin[0] == 0:
-                    pins.append((r, c - pin[1]))
-                elif pin[0] == 1:
-                    pins.append((r, c + pin[1]))
-                elif pin[0] == 2:
-                    pins.append((r - pin[1], c))
+                print(pin)
+                if pin[0][0] == 0:
+                    pins.append((r, c - pin[0][1]))
+                elif pin[0][0] == 1:
+                    pins.append((r, c + pin[0][1]))
+                elif pin[0][0] == 2:
+                    pins.append((r - pin[0][1], c))
                 else:
-                    pins.append((r + pin[1], c))
+                    pins.append((r + pin[0][1], c))
+        print(pins)
 
         if RCIChecks != []:
             check = RCIChecks[0]
+            print(check)
             if check[0] == 0:
                 checks.append((r, c - check[1]))
             elif check[0] == 1:
