@@ -108,10 +108,6 @@ class Main:
 
                 whiteToMove = not whiteToMove
                 validMoves = moves.getValidMoves(whiteToMove, board)
-                if whiteToMove:
-                    checks = moves.searchForPinsAndChecks(wKingLocation, board, whiteToMove)
-                else:
-                    checks = moves.searchForPinsAndChecks(bKingLocation, board, whiteToMove)
                 moveMade = False
                     
 

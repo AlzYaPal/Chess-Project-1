@@ -31,6 +31,7 @@ class Moves:
 
     def getValidMoves(self, whiteToMove, board):
         possibleMoves = self.getAllPossibleMoves(whiteToMove, board)
+        pins, checks = self.searchForPinsAndChecks(self.getKingLocation(whiteToMove, board), board, whiteToMove)
         return possibleMoves
 
 
@@ -164,10 +165,21 @@ class Moves:
             checks = []
         RQPins, RQChecks = self.findRookQueenChecks(kingLocation, board, allyColour, enemyColour)
         checks.append(RQChecks)
+        if pins == [[]]:
+            pins = []
         pins.append(RQPins)
+        if checks == [[]]:
+            checks = []
         BQPins, BQChecks = self.findBishopQueenChecks(kingLocation, board, allyColour, enemyColour)
         pins.append(BQPins)
+        if pins == [[], []]:
+            pins = []
         checks.append(BQChecks)
+        if checks == [[]]:
+            checks = []
+        print(pins)
+        print(checks)
+        return pins, checks
         
         
     def findKnightChecks(self, kingLocation, board, enemyColour):
@@ -245,6 +257,9 @@ class Moves:
                         potentialPins = []
                     else:
                         RCIChecks.append([i, j])
+                elif RCIndex[i][j][0] == enemyColour and not (RCIndex[i][j][1] == 'R' or RCIndex[i][j][1] == 'Q'):
+                    break
+
         if RCIPins != []:
             for i in range(len(RCIPins)):
                 pin = RCIPins[i][0]
@@ -293,6 +308,8 @@ class Moves:
                         diagonal2Left.append((board[r + (d[0] * i)][c + (d[1] * i)]))
                     else:
                         diagonal2Right.append((board[r + (d[0] * i)][c + (d[1] * i)]))
+                else:
+                    break
 
         RCIndex = [diagonal1Left, diagonal1Right, diagonal2Left, diagonal2Right]
         for i in range(len(RCIndex)):
@@ -311,9 +328,19 @@ class Moves:
                         potentialPins = []
                     else:
                         RCIChecks.append([i, j])
+                    break
+                elif RCIndex[i][j][0] == enemyColour and not (RCIndex[i][j][1] == 'B' or RCIndex[i][j][1] == 'Q'):
+                    break
+
+        if len(RCIPins) == 1:
+            PinConfig = RCIPins[0]
+            PinConfig.insert(0, (1, 1))
+            RCIPins = PinConfig
+        print(RCIPins)
+
         if RCIPins != []:
-            for i in range(len(RCIPins)):
-                pin = RCIPins[i][0]
+            for i in range(1, len(RCIPins)):
+                pin = RCIPins[i]
                 if pin[0] == 0:
                     pins.append((r - pin[1], c - pin[1]))
                 elif pin[0] == 1:
