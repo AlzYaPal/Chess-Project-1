@@ -151,7 +151,6 @@ class Moves:
         directions = ((1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, 1), (-1, -1), (1, -1))
         allyColour = "w" if whiteToMove else "b"
         enemyColour = "w" if allyColour == "b" else "b"
-        potentialPins = []
         checks = []
         pins = []
         try:
@@ -163,7 +162,12 @@ class Moves:
         checks.append(self.findPawnChecks(kingLocation, board, enemyColour))
         if checks == [[]]:
             checks = []
-        self.findRookQueenChecks(kingLocation, board, allyColour, enemyColour)
+        RQPins, RQChecks = self.findRookQueenChecks(kingLocation, board, allyColour, enemyColour)
+        checks.append(RQChecks)
+        pins.append(RQPins)
+        BQPins, BQChecks = self.findBishopQueenChecks(kingLocation, board, allyColour, enemyColour)
+        pins.append(BQPins)
+        checks.append(BQChecks)
         
         
     def findKnightChecks(self, kingLocation, board, enemyColour):
@@ -179,8 +183,6 @@ class Moves:
     
     def findPawnChecks(self, kingLocation, board, enemyColour):
         checks = []
-        print(kingLocation)
-        print(enemyColour)
         if enemyColour == 'w':
             if kingLocation[0] != 7:
                 if kingLocation[1] != 7:
@@ -205,7 +207,6 @@ class Moves:
         checks = []
         potentialPins = []
         pins = []
-        directions = ((1, 0), (0, 1), (-1, 0), (0, -1))
         r = kingLocation[0]
         c = kingLocation[1]
         boardRow = board[r]
@@ -221,7 +222,10 @@ class Moves:
         for i in range(len(boardRowLeft)):
             index = -1 * (i + 1)
             boardRowLeftReorder.append(boardRowLeft[index])
-            boardColLeftReorder.append(boardRowLeft[index])
+        for i in range(len(boardColLeft)):
+            index = -1 * (i + 1)
+            boardColLeftReorder.append(boardColLeft[index])
+
         boardRowLeft = boardRowLeftReorder
         boardColLeft = boardColLeftReorder
         RCIndex = [boardRowLeft, boardRowRight, boardColLeft, boardColRight]
@@ -243,21 +247,18 @@ class Moves:
                         RCIChecks.append([i, j])
         if RCIPins != []:
             for i in range(len(RCIPins)):
-                pin = RCIPins[i]
-                print(pin)
-                if pin[0][0] == 0:
-                    pins.append((r, c - pin[0][1]))
-                elif pin[0][0] == 1:
-                    pins.append((r, c + pin[0][1]))
-                elif pin[0][0] == 2:
-                    pins.append((r - pin[0][1], c))
+                pin = RCIPins[i][0]
+                if pin[0] == 0:
+                    pins.append((r, c - pin[1]))
+                elif pin[0] == 1:
+                    pins.append((r, c + pin[1]))
+                elif pin[0] == 2:
+                    pins.append((r - pin[1], c))
                 else:
-                    pins.append((r + pin[0][1], c))
-        print(pins)
+                    pins.append((r + pin[1], c))
 
         if RCIChecks != []:
             check = RCIChecks[0]
-            print(check)
             if check[0] == 0:
                 checks.append((r, c - check[1]))
             elif check[0] == 1:
@@ -266,4 +267,70 @@ class Moves:
                 checks.append((r - check[1], c))
             else:
                 checks.append((r + check[1], c))
-        return checks
+        return pins, checks
+
+    def findBishopQueenChecks(self, kingLocation, board, allyColour, enemyColour):
+        RCIChecks = []
+        RCIPins = []
+        checks = []
+        potentialPins = []
+        pins = []
+        directions = ((1, 1), (-1, -1), (1, -1), (-1, 1))
+        r = kingLocation[0]
+        c = kingLocation[1]
+        diagonal1Left = []
+        diagonal1Right = []
+        diagonal2Left = []
+        diagonal2Right = []
+        for d in directions:
+            for i in range(8):
+                if 0 <= r + (d[0] * i) <= 7 and 0 <= c + (d[1] * i) <= 7:
+                    if d == directions[0]:
+                        diagonal1Right.append((board[r + (d[0] * i)][c + (d[1] * i)]))
+                    elif d == directions[1]:
+                        diagonal1Left.append((board[r + (d[0] * i)][c + (d[1] * i)]))
+                    elif d == directions[2]:
+                        diagonal2Left.append((board[r + (d[0] * i)][c + (d[1] * i)]))
+                    else:
+                        diagonal2Right.append((board[r + (d[0] * i)][c + (d[1] * i)]))
+
+        RCIndex = [diagonal1Left, diagonal1Right, diagonal2Left, diagonal2Right]
+        for i in range(len(RCIndex)):
+            alliesFound = 0
+            for j in range(1, len(RCIndex[i])):
+                if RCIndex[i][j][0] == allyColour:
+                    if alliesFound == 0:
+                        alliesFound = 1
+                        potentialPins.append((i, j))
+                    else:
+                        potentialPins = []
+                        break
+                elif RCIndex[i][j][0] == enemyColour and (RCIndex[i][j][1] == 'B' or RCIndex[i][j][1] == 'Q'):
+                    if alliesFound == 1:
+                        RCIPins.append(potentialPins)
+                        potentialPins = []
+                    else:
+                        RCIChecks.append([i, j])
+        if RCIPins != []:
+            for i in range(len(RCIPins)):
+                pin = RCIPins[i][0]
+                if pin[0] == 0:
+                    pins.append((r - pin[1], c - pin[1]))
+                elif pin[0] == 1:
+                    pins.append((r + pin[1], c + pin[1]))
+                elif pin[0] == 2:
+                    pins.append((r + pin[1], c - pin[1]))
+                else:
+                    pins.append((r - pin[1], c + pin[1]))
+
+        if RCIChecks != []:
+            check = RCIChecks[0]
+            if check[0] == 0:
+                checks.append((r - check[1], c - check[1]))
+            elif check[0] == 1:
+                checks.append((r + check[1], c + check[1]))
+            elif check[0] == 2:
+                checks.append((r + check[1], c - check[1]))
+            else:
+                checks.append((r - check[1], c + check[1]))
+        return pins, checks
