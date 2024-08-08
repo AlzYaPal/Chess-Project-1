@@ -177,8 +177,6 @@ class Moves:
         checks.append(BQChecks)
         if checks == [[]]:
             checks = []
-        print(pins)
-        print(checks)
         return pins, checks
         
         
@@ -262,7 +260,9 @@ class Moves:
 
         if RCIPins != []:
             for i in range(len(RCIPins)):
-                pin = RCIPins[i][0]
+                pin = RCIPins[i]
+                pin = pin[0]
+                print(pin)
                 if pin[0] == 0:
                     pins.append((r, c - pin[1]))
                 elif pin[0] == 1:
@@ -271,6 +271,7 @@ class Moves:
                     pins.append((r - pin[1], c))
                 else:
                     pins.append((r + pin[1], c))
+            print(pins)
 
         if RCIChecks != []:
             check = RCIChecks[0]
@@ -332,15 +333,11 @@ class Moves:
                 elif RCIndex[i][j][0] == enemyColour and not (RCIndex[i][j][1] == 'B' or RCIndex[i][j][1] == 'Q'):
                     break
 
-        if len(RCIPins) == 1:
-            PinConfig = RCIPins[0]
-            PinConfig.insert(0, (1, 1))
-            RCIPins = PinConfig
-        print(RCIPins)
 
         if RCIPins != []:
-            for i in range(1, len(RCIPins)):
+            for i in range(len(RCIPins)):
                 pin = RCIPins[i]
+                pin = pin[0]
                 if pin[0] == 0:
                     pins.append((r - pin[1], c - pin[1]))
                 elif pin[0] == 1:
