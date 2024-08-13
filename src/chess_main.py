@@ -39,8 +39,6 @@ class Main:
         squares = self.squares
         engine = self.engine
         moves = Moves(board)
-        wKingLocation = moves.getKingLocation(True, board)
-        bKingLocation = moves.getKingLocation(False, board)
         validMoves  = moves.getValidMoves(whiteToMove, board)
         moveMade = False #Flag for when a move is made
         running = True
@@ -101,11 +99,6 @@ class Main:
                         for i in range(2):
                             squares.pop(-1)
             if moveMade:
-                if whiteToMove:
-                    wKingLocation = moves.getKingLocation(whiteToMove, board)
-                else:
-                    bKingLocation = moves.getKingLocation(whiteToMove, board)
-
                 whiteToMove = not whiteToMove
                 validMoves = moves.getValidMoves(whiteToMove, board)
                 moveMade = False

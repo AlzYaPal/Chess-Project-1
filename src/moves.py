@@ -1,4 +1,6 @@
 from vars import *
+from chess_engine import *
+import os
 
 class Moves:
     def __init__(self, board):
@@ -8,6 +10,7 @@ class Moves:
         self.filesToCols = {"a": 0, "b": 1, "c": 2, "d": 3, 
                             "e": 5, "f": 6, "g": 7, "h": 8}
         self.colsToFiles = {v: k for k, v in self.filesToCols.items()}
+        self.engine = Engine()
 
         for r in range(ROWSIZE):
             for c in range(COLSIZE):
@@ -30,9 +33,106 @@ class Moves:
 
 
     def getValidMoves(self, whiteToMove, board):
-        possibleMoves = self.getAllPossibleMoves(whiteToMove, board)
-        pins, checks = self.searchForPinsAndChecks(self.getKingLocation(whiteToMove, board), board, whiteToMove)
-        return possibleMoves
+        engine = self.engine
+        kingLocation = self.getKingLocation(whiteToMove, board)
+        strKingLocation = str(kingLocation[0]) + str(kingLocation[1])
+        moves = self.getAllPossibleMoves(whiteToMove, board)
+        print(moves)
+        pins, checks = self.searchForPinsAndChecks(kingLocation, board, whiteToMove)
+
+        format = []
+        if checks != []:
+            for check in checks:
+                format.append(check[0])
+            checks = format
+            format = []
+            if len(checks) == 1:
+                os.system("cls")
+                check = checks[0]
+                print(check)
+                checkStr = str(check[0]) + str(check[1])
+                newBoard = board
+                blockOrTake = []
+                #diffX = 0 if kingLocation[0] == check[0] else 1
+                if kingLocation[0] == check[0]:
+                    diffX = 0
+                elif kingLocation[0] < check[0]:
+                    diffX = -1
+                else:
+                    diffX = 1
+
+                if kingLocation[1] == check[1]:
+                    diffY = 0
+                elif kingLocation[1] < check[1]:
+                    diffY = -1
+                else:
+                    diffY = 1
+
+                print(diffX)
+                print(diffY)
+                distance = [kingLocation[0] - check[0], kingLocation[1] - check[1]]
+                
+                absDistance = distance
+                if distance[0] < 0:
+                    absDistance[0] *= -1
+                if distance[1] < 0:
+                    absDistance[1] *= -1
+
+                else:
+                    absDistance = distance
+                
+                print(distance)
+
+                loopDistance = absDistance[0] if absDistance[0] != 0 else absDistance[1]
+
+                for i in range(loopDistance):
+                    blockOrTake.append(((diffX * i * distance[0] // absDistance[0]) + check[0], (diffY * i * distance[0] // absDistance[0]) + check[1]))
+                print("Block or Take")
+                print(blockOrTake)
+                    
+                for i in range(len(moves)):
+                    move = moves[i]
+                    print(move)
+                    print((move[2], move[3]))
+                    if move[0:2] == strKingLocation:
+                        squares = [int(move[0]), int(move[1]), int(move[2]), int(move[3])]
+                        print(squares)
+                        engine.moveLog.append((move, board[squares[2]][squares[3]]))
+                        newBoard[squares[2]][squares[3]] = newBoard[squares[0]][squares[1]]
+                        newBoard[squares[0]][squares[1]] = "--"
+                        newMoves = self.getAllPossibleMoves(not whiteToMove, newBoard)
+                        move = engine.moveLog[-1]
+                        move_squares = move[0]
+                        piece = move[1]
+                        board[int(move_squares[0])][int(move_squares[1])] = board[int(move_squares[2])][int(move_squares[3])]
+                        board[int(move_squares[2])][int(move_squares[3])] = piece
+                        engine.moveLog.pop(-1)
+                        move_squares = []
+                        print(newMoves)
+                        for newMove in newMoves:
+                            if newMove[2:4] == str(squares[2]) + str(squares[3]):
+                                moves[moves.index(move[0])] = ''
+                        newBoard = board
+                    
+                    elif not ((int(move[2]), int(move[3])) in blockOrTake):
+                        moves[moves.index(move)] = ''
+
+                print(moves)
+                return moves
+                                
+
+
+        if pins != []:
+            print(pins)
+            for pin in pins:
+                if pin != []:
+                    if len(pin) > 1:
+                        for singlePin in pin:
+                            format.append(singlePin)
+            pins = format
+            print(pins)
+        else:
+            return moves
 
 
     def getAllPossibleMoves(self, whiteToMove, board):
@@ -262,7 +362,6 @@ class Moves:
             for i in range(len(RCIPins)):
                 pin = RCIPins[i]
                 pin = pin[0]
-                print(pin)
                 if pin[0] == 0:
                     pins.append((r, c - pin[1]))
                 elif pin[0] == 1:
@@ -271,7 +370,6 @@ class Moves:
                     pins.append((r - pin[1], c))
                 else:
                     pins.append((r + pin[1], c))
-            print(pins)
 
         if RCIChecks != []:
             check = RCIChecks[0]
