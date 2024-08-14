@@ -1,4 +1,4 @@
-import sys, pygame
+import sys, pygame, time
 from chess_engine import *
 from vars import *
 from colours import *
@@ -31,8 +31,31 @@ class Main:
         pygame.display.set_icon(pygame.image.load("assets/icon/icon.png"))
         pygame.display.set_caption("Chess AI")
     
-    def checkmate():
-        font = pygame.font.Font("dahliaregictik.ttf", 64)
+    def checkmate(self, whiteToMove):
+        print("Checkmate")
+        font = pygame.font.Font("assets/font/dahliaregictik.ttf", 44)
+        if whiteToMove:
+            checkmateStr = font.render("White Wins By Checkmate!", True, (0, 0, 0))
+            self.screen.blit(checkmateStr, (10, 268))
+        else:
+            checkmateStr = font.render("Black Wins By Checkmate!", True, (0, 0, 0))
+            self.screen.blit(checkmateStr, (12, 268))
+        print("Checkmate")
+
+            
+    
+    def stalemate(self):
+        font = pygame.font.Font("assets/font/dahliaregictik.ttf", 44)
+        stalemateStr = font.render("Draw By Stalemate!", True, (0, 0, 0))
+        self.screen.blit(stalemateStr, (10, 268))
+        running = True
+        while running:
+            for e in pygame.event.get():
+                if e == pygame.QUIT:
+                    running = False
+        pygame.quit()
+        sys.exit()
+
     
     def main_loop(self):
         colour = 0
@@ -44,8 +67,8 @@ class Main:
         moves = Moves(board)
         validMoves, inCheck  = moves.getValidMoves(whiteToMove, board)
         moveMade = False #Flag for when a move is made
-        checkmate = False
-        stalemate = False
+        inCheckmate = False
+        inStalemate = False
         running = True
         while running:
             screen.fill((255, 255, 255))
@@ -109,23 +132,34 @@ class Main:
                 if validMoves == []:
                     if inCheck == True:
                         inCheckmate = True
+                        whiteToMove = not whiteToMove
                     else:
                         inStalemate = True
-                
-            if inCheckmate:
-                self.checkmate()
-            
-            if inStalemate:
-                self.stalemate()
 
 
 
             Graphics.draw_squares(screen, colours[colour])
             Graphics.draw_pieces(screen, board, self.pieces)
+
+            if inCheckmate:
+                pygame.display.flip()
+                self.checkmate(whiteToMove)
+                running = False
+            
+            if inStalemate:
+                pygame.display.flip()
+                self.stalemate()
+                running = False
+            
             pygame.display.flip()
+
         
-        pygame.quit()
-        sys.exit()
+        try:
+            counter = 0
+        except KeyboardInterrupt:
+            time.sleep(5)
+            pygame.quit()
+            sys.exit()
             
 
 
