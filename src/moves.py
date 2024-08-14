@@ -37,23 +37,22 @@ class Moves:
         kingLocation = self.getKingLocation(whiteToMove, board)
         strKingLocation = str(kingLocation[0]) + str(kingLocation[1])
         moves = self.getAllPossibleMoves(whiteToMove, board)
-        print(moves)
         pins, checks = self.searchForPinsAndChecks(kingLocation, board, whiteToMove)
+        inCheck = False
 
         format = []
         if checks != []:
+            inCheck = True
             for check in checks:
-                format.append(check[0])
+                if check != []:
+                    format.append(check[0])
             checks = format
             format = []
             if len(checks) == 1:
                 os.system("cls")
                 check = checks[0]
-                print(check)
-                checkStr = str(check[0]) + str(check[1])
                 newBoard = board
                 blockOrTake = []
-                #diffX = 0 if kingLocation[0] == check[0] else 1
                 if kingLocation[0] == check[0]:
                     diffX = 0
                 elif kingLocation[0] < check[0]:
@@ -67,9 +66,6 @@ class Moves:
                     diffY = -1
                 else:
                     diffY = 1
-
-                print(diffX)
-                print(diffY)
                 distance = [kingLocation[0] - check[0], kingLocation[1] - check[1]]
                 
                 absDistance = distance
@@ -80,23 +76,21 @@ class Moves:
 
                 else:
                     absDistance = distance
-                
-                print(distance)
 
                 loopDistance = absDistance[0] if absDistance[0] != 0 else absDistance[1]
 
                 for i in range(loopDistance):
                     blockOrTake.append(((diffX * i * distance[0] // absDistance[0]) + check[0], (diffY * i * distance[0] // absDistance[0]) + check[1]))
-                print("Block or Take")
-                print(blockOrTake)
-                    
+
                 for i in range(len(moves)):
                     move = moves[i]
-                    print(move)
-                    print((move[2], move[3]))
+
+                    if board[check[0]][check[1]][1] == "N":
+                        blockOrTake = [check]
+
                     if move[0:2] == strKingLocation:
                         squares = [int(move[0]), int(move[1]), int(move[2]), int(move[3])]
-                        print(squares)
+
                         engine.moveLog.append((move, board[squares[2]][squares[3]]))
                         newBoard[squares[2]][squares[3]] = newBoard[squares[0]][squares[1]]
                         newBoard[squares[0]][squares[1]] = "--"
@@ -108,7 +102,6 @@ class Moves:
                         board[int(move_squares[2])][int(move_squares[3])] = piece
                         engine.moveLog.pop(-1)
                         move_squares = []
-                        print(newMoves)
                         for newMove in newMoves:
                             if newMove[2:4] == str(squares[2]) + str(squares[3]):
                                 moves[moves.index(move[0])] = ''
@@ -117,22 +110,71 @@ class Moves:
                     elif not ((int(move[2]), int(move[3])) in blockOrTake):
                         moves[moves.index(move)] = ''
 
-                print(moves)
-                return moves
-                                
-
+            else:
+                os.system("cls")
+                check1 = checks[0]
+                check2 = checks[1]
+                check1Str = str(check1[0]) + str(check1[1])
+                check2Str = str(check2[0]) + str(check2[1])
+                newBoard = board
+                for i in range(len(moves)):
+                    move = moves[i]
+                    if move[0:2] == strKingLocation:
+                        squares = [int(move[0]), int(move[1]), int(move[2]), int(move[3])]
+                        engine.moveLog.append((move, board[squares[2]][squares[3]]))
+                        newBoard[squares[2]][squares[3]] = newBoard[squares[0]][squares[1]]
+                        newBoard[squares[0]][squares[1]] = "--"
+                        newMoves = self.getAllPossibleMoves(not whiteToMove, newBoard)
+                        move = engine.moveLog[-1]
+                        move_squares = move[0]
+                        piece = move[1]
+                        board[int(move_squares[0])][int(move_squares[1])] = board[int(move_squares[2])][int(move_squares[3])]
+                        board[int(move_squares[2])][int(move_squares[3])] = piece
+                        engine.moveLog.pop(-1)
+                        move_squares = []
+                        for newMove in newMoves:
+                            if newMove[2:4] == str(squares[2]) + str(squares[3]):
+                                moves[moves.index(move[0])] = ''
+                        newBoard = board
+                    else:
+                        moves[moves.index(move)] = ''
 
         if pins != []:
-            print(pins)
             for pin in pins:
                 if pin != []:
-                    if len(pin) > 1:
-                        for singlePin in pin:
-                            format.append(singlePin)
+                    for singlePin in pin:
+                        format.append(singlePin)
             pins = format
-            print(pins)
-        else:
-            return moves
+        
+            for move in moves:
+                for pin in pins:
+                    if int(move[0]) == pin[0] and int(move[1]) == pin[1]:
+                        squares = (move[0], move[1], move[2], move[3])
+                        newBoard = board
+                        engine.moveLog.append((move, board[int(squares[2])][int(squares[3])]))
+                        newBoard[int(squares[2])][int(squares[3])] = board[int(squares[0])][int(squares[1])]
+                        newBoard[int(squares[0])][int(squares[1])] = "--"
+                        newMoves = self.getAllPossibleMoves(not whiteToMove, newBoard)
+                        for newMove in newMoves:
+                            if newMove[2:4] == str(kingLocation[0]) + str(kingLocation[1]):
+                                moves[moves.index(move)] = ''
+                                break
+                        move = engine.moveLog[-1]
+                        squares = move[0]
+                        piece = move[1]
+                        newBoard[int(squares[0])][int(squares[1])] = newBoard[int(squares[2])][int(squares[3])]
+                        board[int(squares[2])][int(squares[3])] = piece
+                        engine.moveLog.pop(-1)
+                        squares = []
+        counter = 0
+        for i in range(len(moves)):
+            try:
+                if moves[i - counter] == '':
+                    moves.pop(i - counter)
+                    counter += 1
+            except IndexError:
+                break
+        return moves, inCheck
 
 
     def getAllPossibleMoves(self, whiteToMove, board):
@@ -431,11 +473,15 @@ class Moves:
                 elif RCIndex[i][j][0] == enemyColour and not (RCIndex[i][j][1] == 'B' or RCIndex[i][j][1] == 'Q'):
                     break
 
-
+        #if len(RCIPins[0]) == 1:
+            #list(RCIPins[0]).insert(0, ())
         if RCIPins != []:
-            for i in range(len(RCIPins)):
-                pin = RCIPins[i]
-                pin = pin[0]
+            if len(RCIPins[0]) == 1:
+                x = 0
+            else:
+                x = 1
+            for i in range(x, len(RCIPins[0])):
+                pin = RCIPins[0][i]
                 if pin[0] == 0:
                     pins.append((r - pin[1], c - pin[1]))
                 elif pin[0] == 1:

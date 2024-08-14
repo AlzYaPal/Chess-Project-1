@@ -31,6 +31,9 @@ class Main:
         pygame.display.set_icon(pygame.image.load("assets/icon/icon.png"))
         pygame.display.set_caption("Chess AI")
     
+    def checkmate():
+        font = pygame.font.Font("dahliaregictik.ttf", 64)
+    
     def main_loop(self):
         colour = 0
         screen = self.screen
@@ -39,8 +42,10 @@ class Main:
         squares = self.squares
         engine = self.engine
         moves = Moves(board)
-        validMoves  = moves.getValidMoves(whiteToMove, board)
+        validMoves, inCheck  = moves.getValidMoves(whiteToMove, board)
         moveMade = False #Flag for when a move is made
+        checkmate = False
+        stalemate = False
         running = True
         while running:
             screen.fill((255, 255, 255))
@@ -84,7 +89,6 @@ class Main:
                         self.clicks = 0
                         move = str(squares[0]) + str(squares[1]) + str(squares[2]) + str(squares[3])
                         pieceTaken = board[squares[2]][squares[3]]
-
                         if move in validMoves:
                             engine.moveLog.append((move, board[squares[2]][squares[3]]))
                             board[squares[2]][squares[3]] = board[squares[0]][squares[1]]
@@ -100,9 +104,20 @@ class Main:
                             squares.pop(-1)
             if moveMade:
                 whiteToMove = not whiteToMove
-                validMoves = moves.getValidMoves(whiteToMove, board)
+                validMoves, inCheck = moves.getValidMoves(whiteToMove, board)
                 moveMade = False
-                    
+                if validMoves == []:
+                    if inCheck == True:
+                        inCheckmate = True
+                    else:
+                        inStalemate = True
+                
+            if inCheckmate:
+                self.checkmate()
+            
+            if inStalemate:
+                self.stalemate()
+
 
 
             Graphics.draw_squares(screen, colours[colour])
