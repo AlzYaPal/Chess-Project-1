@@ -4,12 +4,6 @@ import os
 
 class Moves:
     def __init__(self, board):
-        self.ranksToRows = {"1": 7, "2": 6, "3": 5, "4": 4, 
-                            "5": 3, "6": 2, "7": 1, "8": 0}
-        self.rowsToRanks = {v: k for k, v in self.ranksToRows.items()}
-        self.filesToCols = {"a": 0, "b": 1, "c": 2, "d": 3, 
-                            "e": 5, "f": 6, "g": 7, "h": 8}
-        self.colsToFiles = {v: k for k, v in self.filesToCols.items()}
         self.engine = Engine()
 
         for r in range(ROWSIZE):

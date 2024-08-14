@@ -11,6 +11,7 @@ class Engine:
             ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
         ]
         self.moveLog = []
+        self.RFMoveLog = []
 
     def get_board(self):
         return self.board

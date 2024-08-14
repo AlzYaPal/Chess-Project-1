@@ -4,6 +4,7 @@ from vars import *
 from colours import *
 from graphics import *
 from moves import *
+from notation import *
 
 class Main:
     def __init__(self):
@@ -32,7 +33,6 @@ class Main:
         pygame.display.set_caption("Chess AI")
     
     def checkmate(self, whiteToMove):
-        print("Checkmate")
         font = pygame.font.Font("assets/font/dahliaregictik.ttf", 44)
         if whiteToMove:
             checkmateStr = font.render("White Wins By Checkmate!", True, (0, 0, 0))
@@ -40,7 +40,6 @@ class Main:
         else:
             checkmateStr = font.render("Black Wins By Checkmate!", True, (0, 0, 0))
             self.screen.blit(checkmateStr, (12, 268))
-        print("Checkmate")
 
             
     
@@ -69,6 +68,7 @@ class Main:
         moveMade = False #Flag for when a move is made
         inCheckmate = False
         inStalemate = False
+        notation = Notation()
         running = True
         while running:
             screen.fill((255, 255, 255))
@@ -80,18 +80,6 @@ class Main:
                         colour += 1
                         if colour == 12:
                             colour = 0
-                    elif event.key == pygame.K_z:
-                        try:
-                            move = engine.moveLog[-1]
-                            squares = move[0]
-                            piece = move[1]
-                            board[int(squares[0])][int(squares[1])] = board[int(squares[2])][int(squares[3])]
-                            board[int(squares[2])][int(squares[3])] = piece
-                            engine.moveLog.pop(-1)
-                            squares = []
-                            moveMade = True
-                        except IndexError:
-                            pass
                     elif event.key == pygame.K_x:
                         self.clicks = 0
                         try:
@@ -114,6 +102,7 @@ class Main:
                         pieceTaken = board[squares[2]][squares[3]]
                         if move in validMoves:
                             engine.moveLog.append((move, board[squares[2]][squares[3]]))
+                            engine.RFMoveLog = (notation.toRankFile(engine.moveLog, board, inCheck, inCheckmate))
                             board[squares[2]][squares[3]] = board[squares[0]][squares[1]]
                             board[squares[0]][squares[1]] = "--"
                             squares = []
