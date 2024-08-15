@@ -129,6 +129,8 @@ class Main:
 
             Graphics.draw_squares(screen, colours[colour])
             Graphics.draw_pieces(screen, board, self.pieces)
+            if self.clicks == 1:
+                Graphics.show_highlights(screen, validMoves, squares)
 
             if inCheckmate:
                 pygame.display.flip()

@@ -15,3 +15,9 @@ class Graphics:
             for col in range(COLSIZE):
                 if board[row][col] != "--":
                     screen.blit(pieces[board[row][col]], (col * SQSIZE, row * SQSIZE))
+
+    def show_highlights(screen, moves, coords):
+        if moves != []:
+            for move in moves:
+                if str(coords[0]) == move[0] and str(coords[1]) == move[1]:
+                    rect = pygame.draw.rect(screen, (50, 0, 0), pygame.Rect(int(move[3]) * SQSIZE, int(move[2]) * SQSIZE, SQSIZE, SQSIZE), 10)

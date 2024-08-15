@@ -43,7 +43,6 @@ class Moves:
             checks = format
             format = []
             if len(checks) == 1:
-                os.system("cls")
                 check = checks[0]
                 newBoard = board
                 blockOrTake = []
@@ -98,18 +97,16 @@ class Moves:
                         move_squares = []
                         for newMove in newMoves:
                             if newMove[2:4] == str(squares[2]) + str(squares[3]):
-                                moves[moves.index(move[0])] = ''
+                                try:
+                                    moves[moves.index(move[0])] = ''
+                                except ValueError:
+                                    pass
                         newBoard = board
                     
                     elif not ((int(move[2]), int(move[3])) in blockOrTake):
                         moves[moves.index(move)] = ''
 
             else:
-                os.system("cls")
-                check1 = checks[0]
-                check2 = checks[1]
-                check1Str = str(check1[0]) + str(check1[1])
-                check2Str = str(check2[0]) + str(check2[1])
                 newBoard = board
                 for i in range(len(moves)):
                     move = moves[i]
@@ -133,6 +130,15 @@ class Moves:
                     else:
                         moves[moves.index(move)] = ''
 
+        counter = 0
+        for i in range(len(moves)):
+            try:
+                if moves[i - counter] == '':
+                    moves.pop(i - counter)
+                    counter += 1
+            except IndexError:
+                break
+
         if pins != []:
             for pin in pins:
                 if pin != []:
@@ -142,6 +148,8 @@ class Moves:
         
             for move in moves:
                 for pin in pins:
+                    print(move)
+                    print(pin)
                     if int(move[0]) == pin[0] and int(move[1]) == pin[1]:
                         squares = (move[0], move[1], move[2], move[3])
                         newBoard = board
