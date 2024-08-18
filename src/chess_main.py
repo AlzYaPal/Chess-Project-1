@@ -103,8 +103,48 @@ class Main:
                         if move in validMoves:
                             engine.moveLog.append((move, board[squares[2]][squares[3]]))
                             engine.RFMoveLog = (notation.toRankFile(engine.moveLog, board, inCheck, inCheckmate))
-                            board[squares[2]][squares[3]] = board[squares[0]][squares[1]]
-                            board[squares[0]][squares[1]] = "--"
+                            if move == '0402':
+                                board[0][4] = '--'
+                                board[0][0] = '--'
+                                board[0][2] = 'bK'
+                                board[0][3] = 'bR'
+                                moves.bKingHasMoved = True
+                                moves.bRook1HasMoved = True
+                                print(engine.RFMoveLog)
+                            elif move == '0406':
+                                board[0][4] = '--'
+                                board[0][7] = '--'
+                                board[0][6] = 'bK'
+                                board[0][5] = 'bR'
+                            elif move == '7472':
+                                board[7][4] = '--'
+                                board[7][0] = '--'
+                                board[7][2] = 'wK'
+                                board[7][3] = 'wR'
+                            elif move == '7476':
+                                board[7][4] = '--'
+                                board[7][7] = '--'
+                                board[7][6] = 'wK'
+                                board[7][5] = 'wR'
+                                moves.bKingHasMoved = True
+                                moves.bRook1HasMoved = True
+                                print(engine.RFMoveLog)
+                            else:
+                                board[squares[2]][squares[3]] = board[squares[0]][squares[1]]
+                                board[squares[0]][squares[1]] = "--"
+                                if squares[0] == 0 and squares[1] == 0:
+                                    moves.bRook1HasMoved = True
+                                elif squares[0] == 0 and squares[1] == 7:
+                                    moves.bRook2HasMoved = True
+                                elif squares[0] == 0 and squares[1] == 4:
+                                    moves.bKingHasMoved = True
+                                elif squares[0] == 7 and squares[1] == 0:
+                                    moves.wRook1HasMoved = True
+                                elif squares[0] == 7 and squares[1] == 7:
+                                    moves.wRook2HasMoved = True
+                                elif squares[0] == 7 and squares[1] == 4:
+                                    moves.wKingHasMoved = True
+
                             squares = []
                             moveMade = True
                         else:

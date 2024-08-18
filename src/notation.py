@@ -12,6 +12,12 @@ class Notation():
         move = moveLog[-1]
         moveLog.pop(-1)
         piece = board[int(move[0][0])][int(move[0][1])][1]
+        if move[0] == '0406' or move[0] == '7476':
+            moveLog.append("O-O")
+            return moveLog
+        elif move[0] == '0402' or move[0] == '7472':
+            moveLog.append("O-O-O")
+            return moveLog
         if piece != 'p':
             RFNotation = RFNotation + piece
         else:
