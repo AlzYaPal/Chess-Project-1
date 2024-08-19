@@ -57,6 +57,8 @@ class Main:
 
     
     def main_loop(self):
+        promotion = False
+        promotionTurn = False
         colour = 0
         screen = self.screen
         board = self.board
@@ -93,8 +95,41 @@ class Main:
                     squares.append(pos[1] // SQSIZE)
                     squares.append(pos[0] // SQSIZE)
                     
+                    if promotion:
+                        if ((0 <= pos[1] <= 75 and whiteToMove) or (525 <= pos[1] <= 600 and not whiteToMove)) and \
+                            (squares[3] * SQSIZE) <= pos[0] < ((squares[3] + 1) * SQSIZE):
+                            if whiteToMove:
+                                if pos[1] <= 37.5 and pos[0] - (squares[3] * SQSIZE) <= 37.5:
+                                    board[squares[2]][squares[3]] = 'wQ'
+                                    board[squares[0]][squares[1]] = '--'
+                                elif pos[1] <= 37.5 and 37.5 <= pos[0] - (squares[3] * SQSIZE) < 75:
+                                    board[squares[2]][squares[3]] = 'wN'
+                                    board[squares[0]][squares[1]] = '--'
+                                elif 37.5 <= pos[1] - (squares[2] * SQSIZE) < 75 and pos[0] - (squares[3] * SQSIZE) <= 37.5:
+                                    board[squares[2]][squares[3]] = 'wR'
+                                    board[squares[0]][squares[1]] = '--'
+                                else:
+                                    board[squares[2]][squares[3]] = 'wB'
+                                    board[squares[0]][squares[1]] = '--'
+                            else:
+                                if pos[1] >= 562.5 and pos[0] - (squares[3] * SQSIZE) <= 37.5:
+                                    board[squares[2]][squares[3]] = 'bB'
+                                    board[squares[0]][squares[1]] = '--'
+                                elif pos[1] <= 562.5 and 37.5 <= pos[0] - (squares[3] * SQSIZE) < 75:
+                                    board[squares[2]][squares[3]] = 'bR'
+                                    board[squares[0]][squares[1]] = '--'
+                                elif 562.5 <= pos[1] - (squares[2] * SQSIZE) < 525 and pos[0] - (squares[3] * SQSIZE) <= 37.5:
+                                    board[squares[2]][squares[3]] = 'bN'
+                                    board[squares[0]][squares[1]] = '--'
+                                else:
+                                    board[squares[2]][squares[3]] = 'bQ'
+                                    board[squares[0]][squares[1]] = '--'
+                            moveMade = True
+                            engine.RFMoveLog[-1] = engine.RFMoveLog[-1] + "=" + board[squares[2]][squares[3]][1]
+                            
+
                     
-                    if board[squares[-2]][squares[-1]] != "--" and self.clicks == 0:
+                    if board[squares[-2]][squares[-1]] != "--" and self.clicks == 0 and not promotion:
                         self.clicks = 1
                     elif self.clicks == 1:
                         self.clicks = 0
@@ -110,7 +145,6 @@ class Main:
                                 board[0][3] = 'bR'
                                 moves.bKingHasMoved = True
                                 moves.bRook1HasMoved = True
-                                print(engine.RFMoveLog)
                             elif move == '0406':
                                 board[0][4] = '--'
                                 board[0][7] = '--'
@@ -128,7 +162,16 @@ class Main:
                                 board[7][5] = 'wR'
                                 moves.bKingHasMoved = True
                                 moves.bRook1HasMoved = True
-                                print(engine.RFMoveLog)
+                            elif board[squares[0]][squares[1]][1] == 'p' and ((whiteToMove and squares[2] == 0) or (not whiteToMove and squares[2] == 7)):
+                                if whiteToMove:
+                                    Graphics.pawn_promotion_square(screen, squares[2], squares[3], self.pieces["wB"], self.pieces["wN"], self.pieces["wR"], self.pieces["wQ"])
+                                else:
+                                    Graphics.pawn_promotion_square(screen, squares[2], squares[3], self.pieces["bB"], self.pieces["bN"], self.pieces["bR"], self.pieces["bQ"])
+                                promotion = True
+                                if whiteToMove:
+                                    promotionTurn = True
+                                else:
+                                    promotionTurn = False
                             else:
                                 board[squares[2]][squares[3]] = board[squares[0]][squares[1]]
                                 board[squares[0]][squares[1]] = "--"
@@ -144,9 +187,9 @@ class Main:
                                     moves.wRook2HasMoved = True
                                 elif squares[0] == 7 and squares[1] == 4:
                                     moves.wKingHasMoved = True
-
-                            squares = []
-                            moveMade = True
+                            if not promotion:
+                                squares = []
+                                moveMade = True
                         else:
                             clicks = 0
                             squares = []
@@ -164,6 +207,7 @@ class Main:
                         whiteToMove = not whiteToMove
                     else:
                         inStalemate = True
+                promotion = False
 
 
 
@@ -171,6 +215,13 @@ class Main:
             Graphics.draw_pieces(screen, board, self.pieces)
             if self.clicks == 1:
                 Graphics.show_highlights(screen, validMoves, squares)
+            if promotion:
+                whiteToMove = promotionTurn
+                validMoves = []
+                if whiteToMove:
+                    Graphics.pawn_promotion_square(screen, squares[2], squares[3], self.pieces["wB"], self.pieces["wN"], self.pieces["wR"], self.pieces["wQ"])
+                else:
+                    Graphics.pawn_promotion_square(screen, squares[2], squares[3], self.pieces["bB"], self.pieces["bN"], self.pieces["bR"], self.pieces["bQ"])
 
             if inCheckmate:
                 pygame.display.flip()

@@ -18,6 +18,7 @@ class Notation():
         elif move[0] == '0402' or move[0] == '7472':
             moveLog.append("O-O-O")
             return moveLog
+        
         if piece != 'p':
             RFNotation = RFNotation + piece
         else:
@@ -27,6 +28,9 @@ class Notation():
         if move[1] != '--':
             RFNotation = RFNotation + 'x'
         RFNotation = RFNotation + str(self.colsToFiles[int(move[0][3])]) + str(self.rowsToRanks[int(move[0][2])])
+
+        
+
         if check:
             if checkmate:
                 RFNotation = RFNotation + "#"
