@@ -27,11 +27,11 @@ class Moves:
                         return (r, c)
 
 
-    def getValidMoves(self, whiteToMove, board):
+    def getValidMoves(self, whiteToMove, board, moveLog, prevPiece):
         engine = self.engine
         kingLocation = self.getKingLocation(whiteToMove, board)
         strKingLocation = str(kingLocation[0]) + str(kingLocation[1])
-        moves = self.getAllPossibleMoves(whiteToMove, board, True)
+        moves = self.getAllPossibleMoves(whiteToMove, board, True, moveLog, prevPiece)
         pins, checks = self.searchForPinsAndChecks(kingLocation, board, whiteToMove)
         inCheck = False
 
@@ -88,7 +88,7 @@ class Moves:
                         engine.moveLog.append((move, board[squares[2]][squares[3]]))
                         newBoard[squares[2]][squares[3]] = newBoard[squares[0]][squares[1]]
                         newBoard[squares[0]][squares[1]] = "--"
-                        newMoves = self.getAllPossibleMoves(not whiteToMove, newBoard, True)
+                        newMoves = self.getAllPossibleMoves(not whiteToMove, newBoard, True, '', '')
                         move = engine.moveLog[-1]
                         move_squares = move[0]
                         piece = move[1]
@@ -116,7 +116,7 @@ class Moves:
                         engine.moveLog.append((move, board[squares[2]][squares[3]]))
                         newBoard[squares[2]][squares[3]] = newBoard[squares[0]][squares[1]]
                         newBoard[squares[0]][squares[1]] = "--"
-                        newMoves = self.getAllPossibleMoves(not whiteToMove, newBoard, True)
+                        newMoves = self.getAllPossibleMoves(not whiteToMove, newBoard, True, '', '')
                         move = engine.moveLog[-1]
                         move_squares = move[0]
                         piece = move[1]
@@ -155,7 +155,7 @@ class Moves:
                         engine.moveLog.append((move, board[int(squares[2])][int(squares[3])]))
                         newBoard[int(squares[2])][int(squares[3])] = board[int(squares[0])][int(squares[1])]
                         newBoard[int(squares[0])][int(squares[1])] = "--"
-                        newMoves = self.getAllPossibleMoves(not whiteToMove, newBoard, True)
+                        newMoves = self.getAllPossibleMoves(not whiteToMove, newBoard, True, '', '')
                         for newMove in newMoves:
                             if newMove[2:4] == str(kingLocation[0]) + str(kingLocation[1]):
                                 moves[moves.index(move)] = ''
@@ -178,7 +178,7 @@ class Moves:
         return moves, inCheck
 
 
-    def getAllPossibleMoves(self, whiteToMove, board, checkKingMoves):
+    def getAllPossibleMoves(self, whiteToMove, board, checkKingMoves, moveLog, prevPiece):
         colour = "w" if whiteToMove else "b"
         moves = []
         for row in range(ROWSIZE):
@@ -188,7 +188,7 @@ class Moves:
                     if piece == "K":
                         self.getKingMoves(row, col, moves, board, colour, checkKingMoves)
                     elif piece == "p":
-                        self.getPawnMoves(row, col, moves, board, colour, checkKingMoves)
+                        self.getPawnMoves(row, col, moves, board, colour, checkKingMoves, moveLog, prevPiece)
                     elif piece == "N":
                         self.getKnightMoves(row, col, moves, board, colour, checkKingMoves)
                     elif piece == "B":
@@ -227,7 +227,11 @@ class Moves:
             moves.append('0406')
         
     
-    def getPawnMoves(self, r, c, moves, board, colour, checkKingMoves):
+    def getPawnMoves(self, r, c, moves, board, colour, checkKingMoves, moveLog, prevPiece):
+        en_passant = ''
+        enemy_colour = 'b' if colour == 'w' else 'w'
+        if prevPiece == 'p' and (int(moveLog[0][2]) - int(moveLog[0][0]) == 2 or int(moveLog[0][2]) - int(moveLog[0][0]) == -2):
+            en_passant = [moveLog[0][2], moveLog[0][3]]
         if colour == "w":
             if board[r-1][c] == "--" and r != 0:
                 moves.append(str(r) + str(c) + str(r-1) + str(c))
@@ -239,6 +243,14 @@ class Moves:
             if c != 7:
                 if (board[r-1][c+1] != "--" and board[r-1][c+1][0] != colour and r != 0) or (not checkKingMoves and board[r-1][c+1][0] == colour):
                     moves.append(str(r) + str(c) + str(r-1) + str(c+1))
+            if en_passant != '':
+                print("True")
+                print((r, c))
+                print(en_passant)
+                if r == int(en_passant[0]) and  c == int(en_passant[1]) + 1:
+                    moves.append(str(r) + str(c) + str(r - 1) + str(c - 1))
+                elif r == int(en_passant[0]) and  c == int(en_passant[1]) - 1:
+                    moves.append(str(r) + str(c) + str(r - 1) + str(c + 1))
 
         else:
             if board[r+1][c] == "--" and r != 7:
@@ -251,6 +263,11 @@ class Moves:
             if c != 7:
                 if (board[r+1][c+1] != "--" and board[r+1][c+1][0] != colour and r != 0) or (not checkKingMoves and board[r+1][c+1][0] == colour):
                     moves.append(str(r) + str(c) + str(r+1) + str(c+1))
+            if prevPiece == 'p':
+                if int(moveLog[0][0]) - int(moveLog[0][2]) == 2 and board[int(moveLog[0][2])][int(moveLog[0][3]) - 1] == 'bp':
+                    moves.append(str(r) + str(c) + str(r + 1) + str(c + 1))
+                elif int(moveLog[0][0]) - int(moveLog[0][2]) == 2 and board[int(moveLog[0][2])][int(moveLog[0][3]) + 1] == 'bp':
+                    moves.append(str(r) + str(c) + str(r + 1) + str(c - 1))
             
             
 
@@ -330,7 +347,7 @@ class Moves:
                 newBoard[int(move[2])][int(move[3])] = 'wK' if colour == 'w' else 'bK'
                 newBoard[r][c] = "--"
                 newLocation = self.getKingLocation(True if colour == 'w' else False, newBoard)
-                oppMoves = self.getAllPossibleMoves(True if colour == 'b' else False, newBoard, False)
+                oppMoves = self.getAllPossibleMoves(True if colour == 'b' else False, newBoard, False, '', '')
                 for oppMove in oppMoves:
                     if int(oppMove[2]) == int(newLocation[0]) and int(oppMove[3]) == int(newLocation[1]):
                         try:

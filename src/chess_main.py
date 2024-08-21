@@ -57,6 +57,8 @@ class Main:
 
     
     def main_loop(self):
+        previousMove = ''
+        previousPiece = ''
         promotion = False
         promotionTurn = False
         colour = 0
@@ -66,7 +68,7 @@ class Main:
         squares = self.squares
         engine = self.engine
         moves = Moves(board)
-        validMoves, inCheck  = moves.getValidMoves(whiteToMove, board)
+        validMoves, inCheck  = moves.getValidMoves(whiteToMove, board, previousMove, previousPiece)
         moveMade = False #Flag for when a move is made
         inCheckmate = False
         inStalemate = False
@@ -137,7 +139,9 @@ class Main:
                         pieceTaken = board[squares[2]][squares[3]]
                         if move in validMoves:
                             engine.moveLog.append((move, board[squares[2]][squares[3]]))
+                            previousMove = engine.moveLog[-1]
                             engine.RFMoveLog = (notation.toRankFile(engine.moveLog, board, inCheck, inCheckmate))
+                            previousPiece = board[squares[0]][squares[1]][1]
                             if move == '0402':
                                 board[0][4] = '--'
                                 board[0][0] = '--'
@@ -162,6 +166,14 @@ class Main:
                                 board[7][5] = 'wR'
                                 moves.bKingHasMoved = True
                                 moves.bRook1HasMoved = True
+                            elif board[int(move[0])][int(move[1])][1] == 'p' and move[1] != move[3] and board[int(move[2])][int(move[3])] == '--':
+                                board[squares[2]][squares[3]] = board[squares[0]][squares[1]]
+                                board[squares[0]][squares[1]] = '--'
+                                if whiteToMove:
+                                    board[squares[2] + 1][squares[3]] = '--'
+                                else:
+                                    board[squares[2] - 1][squares[3]] = '--'
+
                             elif board[squares[0]][squares[1]][1] == 'p' and ((whiteToMove and squares[2] == 0) or (not whiteToMove and squares[2] == 7)):
                                 if whiteToMove:
                                     Graphics.pawn_promotion_square(screen, squares[2], squares[3], self.pieces["wB"], self.pieces["wN"], self.pieces["wR"], self.pieces["wQ"])
@@ -199,7 +211,7 @@ class Main:
                             squares.pop(-1)
             if moveMade:
                 whiteToMove = not whiteToMove
-                validMoves, inCheck = moves.getValidMoves(whiteToMove, board)
+                validMoves, inCheck = moves.getValidMoves(whiteToMove, board, previousMove, previousPiece)
                 moveMade = False
                 if validMoves == []:
                     if inCheck == True:
