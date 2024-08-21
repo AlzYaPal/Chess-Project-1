@@ -244,9 +244,6 @@ class Moves:
                 if (board[r-1][c+1] != "--" and board[r-1][c+1][0] != colour and r != 0) or (not checkKingMoves and board[r-1][c+1][0] == colour):
                     moves.append(str(r) + str(c) + str(r-1) + str(c+1))
             if en_passant != '':
-                print("True")
-                print((r, c))
-                print(en_passant)
                 if r == int(en_passant[0]) and  c == int(en_passant[1]) + 1:
                     moves.append(str(r) + str(c) + str(r - 1) + str(c - 1))
                 elif r == int(en_passant[0]) and  c == int(en_passant[1]) - 1:
