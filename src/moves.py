@@ -74,6 +74,10 @@ class Moves:
                 loopDistance = absDistance[0] if absDistance[0] != 0 else absDistance[1]
 
                 for i in range(loopDistance):
+                    if distance[0] == 0:
+                        distance[0] = 1
+                    if distance[1] == 0:
+                        distance[1] = 1
                     blockOrTake.append(((diffX * i * distance[0] // absDistance[0]) + check[0], (diffY * i * distance[0] // absDistance[0]) + check[1]))
 
                 for i in range(len(moves)):
