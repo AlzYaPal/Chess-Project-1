@@ -1,4 +1,5 @@
 from vars import *
+from colours import *
 import pygame
 pygame.init()
 
@@ -22,8 +23,11 @@ class Graphics:
                 if str(coords[0]) == move[0] and str(coords[1]) == move[1]:
                     rect = pygame.draw.rect(screen, (50, 0, 0), pygame.Rect(int(move[3]) * SQSIZE, int(move[2]) * SQSIZE, SQSIZE, SQSIZE), 10)
 
-    def pawn_promotion_square(screen, r, c, bishop, knight, rook, queen):
-        pygame.draw.rect(screen, (255, 255, 255), (r * SQSIZE, c * SQSIZE, SQSIZE, SQSIZE))
+    def pawn_promotion_square(screen, r, c, bishop, knight, rook, queen, colour):
+        if (r + c) % 2 == 0:
+            pygame.draw.rect(screen, (255, 255, 255), (c * SQSIZE, r * SQSIZE, SQSIZE, SQSIZE))
+        else:
+            pygame.draw.rect(screen, colours[colour], (c * SQSIZE, r * SQSIZE, SQSIZE, SQSIZE))
         bishop = pygame.transform.scale(bishop, (SQSIZE // 2 - 2, SQSIZE // 2 - 4))
         knight = pygame.transform.scale(knight, (SQSIZE // 2 - 2, SQSIZE // 2 - 4))
         rook = pygame.transform.scale(rook, (SQSIZE // 2 - 2, SQSIZE // 2 - 4))

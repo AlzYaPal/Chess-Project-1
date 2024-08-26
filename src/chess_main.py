@@ -176,9 +176,9 @@ class Main:
 
                             elif board[squares[0]][squares[1]][1] == 'p' and ((whiteToMove and squares[2] == 0) or (not whiteToMove and squares[2] == 7)):
                                 if whiteToMove:
-                                    Graphics.pawn_promotion_square(screen, squares[2], squares[3], self.pieces["wB"], self.pieces["wN"], self.pieces["wR"], self.pieces["wQ"])
+                                    Graphics.pawn_promotion_square(screen, squares[2], squares[3], self.pieces["wB"], self.pieces["wN"], self.pieces["wR"], self.pieces["wQ"], colour)
                                 else:
-                                    Graphics.pawn_promotion_square(screen, squares[2], squares[3], self.pieces["bB"], self.pieces["bN"], self.pieces["bR"], self.pieces["bQ"])
+                                    Graphics.pawn_promotion_square(screen, squares[2], squares[3], self.pieces["bB"], self.pieces["bN"], self.pieces["bR"], self.pieces["bQ"], colour)
                                 promotion = True
                                 if whiteToMove:
                                     promotionTurn = True
@@ -231,9 +231,9 @@ class Main:
                 whiteToMove = promotionTurn
                 validMoves = []
                 if whiteToMove:
-                    Graphics.pawn_promotion_square(screen, squares[2], squares[3], self.pieces["wB"], self.pieces["wN"], self.pieces["wR"], self.pieces["wQ"])
+                    Graphics.pawn_promotion_square(screen, squares[2], squares[3], self.pieces["wB"], self.pieces["wN"], self.pieces["wR"], self.pieces["wQ"], colour)
                 else:
-                    Graphics.pawn_promotion_square(screen, squares[2], squares[3], self.pieces["bB"], self.pieces["bN"], self.pieces["bR"], self.pieces["bQ"])
+                    Graphics.pawn_promotion_square(screen, squares[2], squares[3], self.pieces["bB"], self.pieces["bN"], self.pieces["bR"], self.pieces["bQ"], colour)
 
             if inCheckmate:
                 pygame.display.flip()
@@ -245,16 +245,7 @@ class Main:
                 self.stalemate()
                 running = False
             
-            pygame.display.flip()
-
-        
-        try:
-            counter = 0
-        except KeyboardInterrupt:
-            time.sleep(5)
-            pygame.quit()
-            sys.exit()
-            
+            pygame.display.flip()         
 
 
 main = Main()
