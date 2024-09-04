@@ -179,6 +179,7 @@ class Moves:
                     counter += 1
             except IndexError:
                 break
+        self.castling(board, whiteToMove, moves, inCheck)
         return moves, inCheck
 
 
@@ -201,26 +202,23 @@ class Moves:
                         self.getRookMoves(row, col, moves, board, colour, checkKingMoves)
                     elif piece == "Q":
                         self.getQueenMoves(row, col, moves, board, colour, checkKingMoves)
-
-                    self.castling(board, whiteToMove, moves)
         return moves
         
-    def castling(self, board, whiteToMove, moves):
+    def castling(self, board, whiteToMove, moves, inCheck):
         long = short = False
         if whiteToMove:
-            if not self.wKingHasMoved:
+            if not (self.wKingHasMoved or inCheck):
                 if not self.wRook1HasMoved and board[7][1] == '--' and board[7][2] == '--' and board[7][3] == '--':
                     long = True
                 if not self.wRook2HasMoved and board[7][5] == '--' and board[7][6] == '--':
                     short = True
         else:
-            if not self.bKingHasMoved:
+            if not (self.bKingHasMoved or inCheck):
                 if not self.bRook1HasMoved and board[0][1] == '--' and board[0][2] == '--' and board[0][3] == '--':
                     long = True
                 if not self.bRook2HasMoved and board[0][5] == '--' and board[0][6] == '--':
                     short = True
-        
-        
+                
         if whiteToMove and long:
             moves.append('7472')
         if whiteToMove and short:
