@@ -239,7 +239,6 @@ class Moves:
     
     def getPawnMoves(self, r, c, moves, board, colour, checkKingMoves, moveLog, prevPiece):
         en_passant = ''
-        enemy_colour = 'b' if colour == 'w' else 'w'
         if prevPiece == 'p' and (int(moveLog[0][2]) - int(moveLog[0][0]) == 2 or int(moveLog[0][2]) - int(moveLog[0][0]) == -2):
             en_passant = [moveLog[0][2], moveLog[0][3]]
         if colour == "w":
@@ -368,7 +367,6 @@ class Moves:
 
 
     def searchForPinsAndChecks(self, kingLocation, board, whiteToMove):
-        directions = ((1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, 1), (-1, -1), (1, -1))
         allyColour = "w" if whiteToMove else "b"
         enemyColour = "w" if allyColour == "b" else "b"
         checks = []
@@ -489,7 +487,6 @@ class Moves:
                     pins.append((r - pin[1], c))
                 else:
                     pins.append((r + pin[1], c))
-
         if RCIChecks != []:
             check = RCIChecks[0]
             if check[0] == 0:
@@ -550,8 +547,6 @@ class Moves:
                 elif RCIndex[i][j][0] == enemyColour and not (RCIndex[i][j][1] == 'B' or RCIndex[i][j][1] == 'Q'):
                     break
 
-        #if len(RCIPins[0]) == 1:
-            #list(RCIPins[0]).insert(0, ())
         if RCIPins != []:
             if len(RCIPins[0]) == 1:
                 x = 0
@@ -567,7 +562,6 @@ class Moves:
                     pins.append((r + pin[1], c - pin[1]))
                 else:
                     pins.append((r - pin[1], c + pin[1]))
-
         if RCIChecks != []:
             check = RCIChecks[0]
             if check[0] == 0:
