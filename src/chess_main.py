@@ -1,10 +1,14 @@
-import sys, pygame, time
+import sys, pygame
 from chess_engine import *
-from vars import *
 from colours import *
 from graphics import *
 from moves import *
 from notation import *
+from vars import *
+
+'''
+General Algorithm for the Project
+'''
 
 class Main:
     def __init__(self):
@@ -12,26 +16,30 @@ class Main:
         self.engine = Engine()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.board = self.engine.get_board()
-        self.pieces = {"wR": pygame.transform.scale(pygame.image.load("assets/pieces/wR.png"), (SQSIZE, SQSIZE)),
-                  "wN": pygame.transform.scale(pygame.image.load("assets/pieces/wN.png"), (SQSIZE, SQSIZE)),
-                  "wB": pygame.transform.scale(pygame.image.load("assets/pieces/wB.png"), (SQSIZE, SQSIZE)),
-                  "wQ": pygame.transform.scale(pygame.image.load("assets/pieces/wQ.png"), (SQSIZE, SQSIZE)),
-                  "wK": pygame.transform.scale(pygame.image.load("assets/pieces/wK.png"), (SQSIZE, SQSIZE)),
-                  "wp": pygame.transform.scale(pygame.image.load("assets/pieces/wp.png"), (SQSIZE, SQSIZE)),
-                  "bR": pygame.transform.scale(pygame.image.load("assets/pieces/bR.png"), (SQSIZE, SQSIZE)),
-                  "bN": pygame.transform.scale(pygame.image.load("assets/pieces/bN.png"), (SQSIZE, SQSIZE)),
-                  "bB": pygame.transform.scale(pygame.image.load("assets/pieces/bB.png"), (SQSIZE, SQSIZE)),
-                  "bQ": pygame.transform.scale(pygame.image.load("assets/pieces/bQ.png"), (SQSIZE, SQSIZE)),
-                  "bK": pygame.transform.scale(pygame.image.load("assets/pieces/bK.png"), (SQSIZE, SQSIZE)),
-                  "bp": pygame.transform.scale(pygame.image.load("assets/pieces/bp.png"), (SQSIZE, SQSIZE)),
+
+        # Dictionary to load the names and images (pgn) for all pieces
+        self.pieces = {"wR": pygame.transform.scale(pygame.image.load("assets/pieces/wR.png"), (SQSIZE, SQSIZE)), #White Rook
+                  "wN": pygame.transform.scale(pygame.image.load("assets/pieces/wN.png"), (SQSIZE, SQSIZE)), #White Knight
+                  "wB": pygame.transform.scale(pygame.image.load("assets/pieces/wB.png"), (SQSIZE, SQSIZE)), #White Bishop
+                  "wQ": pygame.transform.scale(pygame.image.load("assets/pieces/wQ.png"), (SQSIZE, SQSIZE)), #White Queen
+                  "wK": pygame.transform.scale(pygame.image.load("assets/pieces/wK.png"), (SQSIZE, SQSIZE)), #White King
+                  "wp": pygame.transform.scale(pygame.image.load("assets/pieces/wp.png"), (SQSIZE, SQSIZE)), #WHite Pawn
+                  "bR": pygame.transform.scale(pygame.image.load("assets/pieces/bR.png"), (SQSIZE, SQSIZE)), #Black Rook
+                  "bN": pygame.transform.scale(pygame.image.load("assets/pieces/bN.png"), (SQSIZE, SQSIZE)), #Black Knight
+                  "bB": pygame.transform.scale(pygame.image.load("assets/pieces/bB.png"), (SQSIZE, SQSIZE)), #Black Bishop
+                  "bQ": pygame.transform.scale(pygame.image.load("assets/pieces/bQ.png"), (SQSIZE, SQSIZE)), #Black Queen
+                  "bK": pygame.transform.scale(pygame.image.load("assets/pieces/bK.png"), (SQSIZE, SQSIZE)), #Black King
+                  "bp": pygame.transform.scale(pygame.image.load("assets/pieces/bp.png"), (SQSIZE, SQSIZE)), #Black Pawn
                   }
         self.clicks = 0
         self.squares = []
         self.whiteToMove = True
 
+        # Added Icon and Caption
         pygame.display.set_icon(pygame.image.load("assets/icon/icon.png"))
         pygame.display.set_caption("Chess AI")
     
+    #Checkmate Algorithm
     def checkmate(self, whiteToMove):
         font = pygame.font.Font("assets/font/dahliaregictik.ttf", 44)
         if whiteToMove:
@@ -42,7 +50,7 @@ class Main:
             self.screen.blit(checkmateStr, (12, 268))
 
             
-    
+    #Stalemate (No Legal Moves + Not In check)
     def stalemate(self):
         font = pygame.font.Font("assets/font/dahliaregictik.ttf", 44)
         stalemateStr = font.render("Draw By Stalemate!", True, (0, 0, 0))
@@ -133,7 +141,8 @@ class Main:
                     
                     if board[squares[-2]][squares[-1]] != "--" and self.clicks == 0 and not promotion:
                         self.clicks = 1
-                    elif self.clicks == 1:
+                        allyColour = 'w' if whiteToMove else 'b'
+                    elif self.clicks == 1 and board[pos[1] // SQSIZE][pos[0] // SQSIZE][0] != allyColour:
                         self.clicks = 0
                         move = str(squares[0]) + str(squares[1]) + str(squares[2]) + str(squares[3])
                         pieceTaken = board[squares[2]][squares[3]]
@@ -205,6 +214,9 @@ class Main:
                         else:
                             clicks = 0
                             squares = []
+
+                    elif self.clicks == 1 and board[pos[1] // SQSIZE][pos[0] // SQSIZE][0] == allyColour:
+                        squares = [pos[1] // SQSIZE, pos[0] // SQSIZE]
 
                     else:
                         for i in range(2):

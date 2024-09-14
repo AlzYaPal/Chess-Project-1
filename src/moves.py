@@ -1,5 +1,5 @@
-from vars import *
 from chess_engine import *
+from vars import *
 
 class Moves:
     def __init__(self, board):

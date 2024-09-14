@@ -1,6 +1,6 @@
-from vars import *
-from colours import *
 import pygame
+from colours import *
+from vars import *
 pygame.init()
 
 class Graphics:
