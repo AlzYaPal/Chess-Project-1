@@ -226,7 +226,8 @@ class Moves:
                 short = False
             if (move[2] == rCoord and (move[3] == '2' or move[3] == '3')):
                 long = False
-                
+        
+        long = short = False
         if whiteToMove and long:
             moves.append('7472')
         if whiteToMove and short:

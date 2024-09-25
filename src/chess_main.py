@@ -52,16 +52,10 @@ class Main:
             
     #Stalemate (No Legal Moves + Not In check)
     def stalemate(self):
+        print("Stalemate")
         font = pygame.font.Font("assets/font/dahliaregictik.ttf", 44)
         stalemateStr = font.render("Draw By Stalemate!", True, (0, 0, 0))
-        self.screen.blit(stalemateStr, (10, 268))
-        running = True
-        while running:
-            for e in pygame.event.get():
-                if e == pygame.QUIT:
-                    running = False
-        pygame.quit()
-        sys.exit()
+        self.screen.blit(stalemateStr, (90, 278))
 
     
     def main_loop(self):
@@ -246,6 +240,7 @@ class Main:
                     Graphics.pawn_promotion_square(screen, squares[2], squares[3], self.pieces["wB"], self.pieces["wN"], self.pieces["wR"], self.pieces["wQ"], colour)
                 else:
                     Graphics.pawn_promotion_square(screen, squares[2], squares[3], self.pieces["bB"], self.pieces["bN"], self.pieces["bR"], self.pieces["bQ"], colour)
+            
 
             if inCheckmate:
                 pygame.display.flip()
@@ -254,7 +249,7 @@ class Main:
             
             if inStalemate:
                 pygame.display.flip()
-                self.stalemate()
+                running = self.stalemate()
                 running = False
             
             pygame.display.flip()         
@@ -262,3 +257,12 @@ class Main:
 
 main = Main()
 main.main_loop()
+
+running = True
+while running:
+    for e in pygame.event.get():
+        if e.type == pygame.QUIT:
+            running = False
+
+pygame.quit()
+sys.exit()
