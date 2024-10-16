@@ -5,8 +5,8 @@ class Moves:
     def __init__(self, board):
         self.engine = Engine()
 
-        for r in range(ROWSIZE):
-            for c in range(COLSIZE):
+        for r in range(rowSize):
+            for c in range(colSize):
                 if board[r][c] == "wK":
                     self.wKingLocation = (r, c)
                 elif board[r][c] == "bK":
@@ -16,13 +16,13 @@ class Moves:
 
     def getKingLocation(self, whiteToMove, board):
         if whiteToMove:
-            for r in range(ROWSIZE):
-                for c in range(COLSIZE):
+            for r in range(rowSize):
+                for c in range(colSize):
                     if board[r][c] == "wK":
                         return (r, c)
         else:
-            for r in range(ROWSIZE):
-                for c in range(COLSIZE):
+            for r in range(rowSize):
+                for c in range(colSize):
                     if board[r][c] == "bK":
                         return (r, c)
 
@@ -94,12 +94,12 @@ class Moves:
                         newBoard[squares[0]][squares[1]] = "--"
                         newMoves = self.getAllPossibleMoves(not whiteToMove, newBoard, True, '', '')
                         move = engine.moveLog[-1]
-                        move_squares = move[0]
+                        moveSquares = move[0]
                         piece = move[1]
-                        board[int(move_squares[0])][int(move_squares[1])] = board[int(move_squares[2])][int(move_squares[3])]
-                        board[int(move_squares[2])][int(move_squares[3])] = piece
+                        board[int(moveSquares[0])][int(moveSquares[1])] = board[int(moveSquares[2])][int(moveSquares[3])]
+                        board[int(moveSquares[2])][int(moveSquares[3])] = piece
                         engine.moveLog.pop(-1)
-                        move_squares = []
+                        moveSquares = []
                         for newMove in newMoves:
                             if newMove[2:4] == str(squares[2]) + str(squares[3]):
                                 try:
@@ -122,12 +122,12 @@ class Moves:
                         newBoard[squares[0]][squares[1]] = "--"
                         newMoves = self.getAllPossibleMoves(not whiteToMove, newBoard, True, '', '')
                         move = engine.moveLog[-1]
-                        move_squares = move[0]
+                        moveSquares = move[0]
                         piece = move[1]
-                        board[int(move_squares[0])][int(move_squares[1])] = board[int(move_squares[2])][int(move_squares[3])]
-                        board[int(move_squares[2])][int(move_squares[3])] = piece
+                        board[int(moveSquares[0])][int(moveSquares[1])] = board[int(moveSquares[2])][int(moveSquares[3])]
+                        board[int(moveSquares[2])][int(moveSquares[3])] = piece
                         engine.moveLog.pop(-1)
-                        move_squares = []
+                        moveSquares = []
                         for newMove in newMoves:
                             if newMove[2:4] == str(squares[2]) + str(squares[3]):
                                 moves[moves.index(move[0])] = ''
@@ -186,8 +186,8 @@ class Moves:
     def getAllPossibleMoves(self, whiteToMove, board, checkKingMoves, moveLog, prevPiece):
         colour = "w" if whiteToMove else "b"
         moves = []
-        for row in range(ROWSIZE):
-            for col in range(COLSIZE):
+        for row in range(rowSize):
+            for col in range(colSize):
                 if board[row][col][0] == colour:
                     piece = board[row][col][1]
                     if piece == "K":
@@ -227,7 +227,6 @@ class Moves:
             if (move[2] == rCoord and (move[3] == '2' or move[3] == '3')):
                 long = False
         
-        long = short = False
         if whiteToMove and long:
             moves.append('7472')
         if whiteToMove and short:
@@ -239,9 +238,9 @@ class Moves:
         
     
     def getPawnMoves(self, r, c, moves, board, colour, checkKingMoves, moveLog, prevPiece):
-        en_passant = ''
+        enPassant = ''
         if prevPiece == 'p' and (int(moveLog[0][2]) - int(moveLog[0][0]) == 2 or int(moveLog[0][2]) - int(moveLog[0][0]) == -2):
-            en_passant = [moveLog[0][2], moveLog[0][3]]
+            enPassant = [moveLog[0][2], moveLog[0][3]]
         if colour == "w":
             if board[r-1][c] == "--" and r != 0:
                 moves.append(str(r) + str(c) + str(r-1) + str(c))
@@ -253,10 +252,10 @@ class Moves:
             if c != 7:
                 if (board[r-1][c+1] != "--" and board[r-1][c+1][0] != colour and r != 0) or (not checkKingMoves and board[r-1][c+1][0] == colour):
                     moves.append(str(r) + str(c) + str(r-1) + str(c+1))
-            if en_passant != '':
-                if r == int(en_passant[0]) and  c == int(en_passant[1]) + 1:
+            if enPassant != '':
+                if r == int(enPassant[0]) and  c == int(enPassant[1]) + 1:
                     moves.append(str(r) + str(c) + str(r - 1) + str(c - 1))
-                elif r == int(en_passant[0]) and  c == int(en_passant[1]) - 1:
+                elif r == int(enPassant[0]) and  c == int(enPassant[1]) - 1:
                     moves.append(str(r) + str(c) + str(r - 1) + str(c + 1))
 
         else:
@@ -439,7 +438,7 @@ class Moves:
         c = kingLocation[1]
         boardRow = board[r]
         boardCol = []
-        for i in range(COLSIZE):
+        for i in range(colSize):
             boardCol.append(board[i][c])
         boardRowLeft = boardRow[:c + 1]
         boardRowRight = boardRow[c:]

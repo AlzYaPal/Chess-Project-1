@@ -5,35 +5,35 @@ pygame.init()
 
 class Graphics:
 
-    def draw_squares(screen, colour):
-        for row in range(ROWSIZE):
-            for col in range(COLSIZE):
+    def drawSquares(screen, colour): #Drawing the black and white squares on the board
+        for row in range(rowSize):
+            for col in range(colSize):
                 if (row + col) % 2 == 1:
-                    pygame.draw.rect(screen, colour, (row * SQSIZE, col * SQSIZE, SQSIZE, SQSIZE))
+                    pygame.draw.rect(screen, colour, (row * squareSize, col * squareSize, squareSize, squareSize))
 
-    def draw_pieces(screen, board, pieces):
-        for row in range(ROWSIZE):
-            for col in range(COLSIZE):
+    def drawPieces(screen, board, pieces): #Drawing the pieces on the board
+        for row in range(rowSize):
+            for col in range(colSize):
                 if board[row][col] != "--":
-                    screen.blit(pieces[board[row][col]], (col * SQSIZE, row * SQSIZE))
+                    screen.blit(pieces[board[row][col]], (col * squareSize, row * squareSize))
 
-    def show_highlights(screen, moves, coords):
+    def showHighlights(screen, moves, coords): #Highlighting the squares for valid moves
         if moves != []:
             for move in moves:
                 if str(coords[0]) == move[0] and str(coords[1]) == move[1]:
-                    rect = pygame.draw.rect(screen, (50, 0, 0), pygame.Rect(int(move[3]) * SQSIZE, int(move[2]) * SQSIZE, SQSIZE, SQSIZE), 10)
+                    rect = pygame.draw.rect(screen, (50, 0, 0), pygame.Rect(int(move[3]) * squareSize, int(move[2]) * squareSize, squareSize, squareSize), 10)
 
-    def pawn_promotion_square(screen, r, c, bishop, knight, rook, queen, colour):
+    def pawnPromotionSquare(screen, r, c, bishop, knight, rook, queen, colour):
         if (r + c) % 2 == 0:
-            pygame.draw.rect(screen, (255, 255, 255), (c * SQSIZE, r * SQSIZE, SQSIZE, SQSIZE))
+            pygame.draw.rect(screen, (255, 255, 255), (c * squareSize, r * squareSize, squareSize, squareSize))
         else:
-            pygame.draw.rect(screen, colours[colour], (c * SQSIZE, r * SQSIZE, SQSIZE, SQSIZE))
-        bishop = pygame.transform.scale(bishop, (SQSIZE // 2 - 2, SQSIZE // 2 - 4))
-        knight = pygame.transform.scale(knight, (SQSIZE // 2 - 2, SQSIZE // 2 - 4))
-        rook = pygame.transform.scale(rook, (SQSIZE // 2 - 2, SQSIZE // 2 - 4))
-        queen = pygame.transform.scale(queen, (SQSIZE // 2 - 2, SQSIZE // 2 - 4))
-        screen.blit(queen, (SQSIZE * c + 2, SQSIZE * r + 2))
-        screen.blit(rook, (SQSIZE * c + 2, SQSIZE * r + (SQSIZE // 2) + 2))
-        screen.blit(knight, (SQSIZE * c + (SQSIZE // 2) + 2, SQSIZE * r + 2))
-        screen.blit(bishop, (SQSIZE * c + (SQSIZE // 2) + 2, SQSIZE * r + (SQSIZE // 2) + 2))
+            pygame.draw.rect(screen, colours[colour], (c * squareSize, r * squareSize, squareSize, squareSize))
+        bishop = pygame.transform.scale(bishop, (squareSize // 2 - 2, squareSize // 2 - 4))
+        knight = pygame.transform.scale(knight, (squareSize // 2 - 2, squareSize // 2 - 4))
+        rook = pygame.transform.scale(rook, (squareSize // 2 - 2, squareSize // 2 - 4))
+        queen = pygame.transform.scale(queen, (squareSize // 2 - 2, squareSize // 2 - 4))
+        screen.blit(queen, (squareSize * c + 2, squareSize * r + 2))
+        screen.blit(rook, (squareSize * c + 2, squareSize * r + (squareSize // 2) + 2))
+        screen.blit(knight, (squareSize * c + (squareSize // 2) + 2, squareSize * r + 2))
+        screen.blit(bishop, (squareSize * c + (squareSize // 2) + 2, squareSize * r + (squareSize // 2) + 2))
         pygame.display.flip()

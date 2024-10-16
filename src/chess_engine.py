@@ -1,8 +1,8 @@
 class Engine:
     def __init__(self):
         self.board = [
-            ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
-            ["bp", "bp", "bp", "bp", "bp", "bp", "bp", "bp"],
+            ["--", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
+            ["wp", "bp", "bp", "bp", "bp", "bp", "bp", "bp"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
@@ -14,5 +14,5 @@ class Engine:
         self.moveLog = []
         self.RFMoveLog = []
 
-    def get_board(self):
+    def getBoard(self):
         return self.board

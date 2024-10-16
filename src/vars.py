@@ -1,3 +1,3 @@
-WIDTH = HEIGHT = 600
-ROWSIZE = COLSIZE = 8
-SQSIZE = WIDTH // ROWSIZE
+width = height = 600
+rowSize = colSize = 8
+squareSize = width // rowSize

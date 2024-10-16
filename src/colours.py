@@ -1,3 +1,5 @@
+#Denary Values for each board colour
+
 colours = ((100, 100, 100),
            (255, 0, 0),
            (100, 0, 0),
