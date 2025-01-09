@@ -1,10 +1,16 @@
 from chess_engine import *
 from vars import *
 
+'''
+This class is responsible for finding any possible moves for all pieces and
+weeding out any illegal moves (i.e. any that would put their own King in check)
+'''
+
 class Moves:
     def __init__(self, board):
         self.engine = Engine()
 
+        #Original Location of the Kings
         for r in range(rowSize):
             for c in range(colSize):
                 if board[r][c] == "wK":
@@ -12,8 +18,10 @@ class Moves:
                 elif board[r][c] == "bK":
                     self.bKingLocation = (r, c)
 
+        #Sets the castling condition variables all to false (i.e. the Kings can castle if there are no pieces in the way)
         self.wKingHasMoved = self.bKingHasMoved = self.wRook1HasMoved = self.wRook2HasMoved = self.bRook1HasMoved = self.bRook2HasMoved = False
 
+    #Gets the location of the King of the side who are moving this go
     def getKingLocation(self, whiteToMove, board):
         if whiteToMove:
             for r in range(rowSize):
@@ -26,25 +34,26 @@ class Moves:
                     if board[r][c] == "bK":
                         return (r, c)
 
-
+    #Calls the getAllPossibleMoves function and removes any illegal moves
     def getValidMoves(self, whiteToMove, board, moveLog, prevPiece):
         engine = self.engine
-        kingLocation = self.getKingLocation(whiteToMove, board)
-        strKingLocation = str(kingLocation[0]) + str(kingLocation[1])
-        moves = self.getAllPossibleMoves(whiteToMove, board, True, moveLog, prevPiece)
-        pins, checks = self.searchForPinsAndChecks(kingLocation, board, whiteToMove)
+        kingLocation = self.getKingLocation(whiteToMove, board) #Gets the location of the King
+        strKingLocation = str(kingLocation[0]) + str(kingLocation[1]) #Converts the location to a string
+        moves = self.getAllPossibleMoves(whiteToMove, board, True, moveLog, prevPiece) #Gets every possible moves (negating checks and pins)
+        pins, checks = self.searchForPinsAndChecks(kingLocation, board, whiteToMove) #Searches for all pins and checks being given
         inCheck = False
 
         format = []
-        if checks != []:
+        if checks != []: #If the king is currently in check
             inCheck = True
             for check in checks:
-                if check != []:
+                if check != []: #I was getting a bug where I would get empty spaces in the checks array, so I changed it 
+                                #to remove any 'checks' that were an empty list
                     format.append(check[0])
             checks = format
             format = []
-            if len(checks) == 1:
-                check = checks[0]
+            if len(checks) == 1: #If the King is in check from one piece
+                check = checks[0] #Formats the list so that it is 1D
                 newBoard = board
                 blockOrTake = []
                 if kingLocation[0] == check[0]:
@@ -111,7 +120,7 @@ class Moves:
                     elif not ((int(move[2]), int(move[3])) in blockOrTake):
                         moves[moves.index(move)] = ''
 
-            else:
+            else: #If the King is in check from two pieces (Double Check)
                 newBoard = board
                 for i in range(len(moves)):
                     move = moves[i]
@@ -144,14 +153,14 @@ class Moves:
             except IndexError:
                 break
 
-        if pins != []:
+        if pins != []: #Formatting the Pins List
             for pin in pins:
                 if pin != []:
                     for singlePin in pin:
                         format.append(singlePin)
             pins = format
         
-            for move in moves:
+            for move in moves: #Removing moves if the piece is pinned and the move would put the King in check
                 for pin in pins:
                     if int(move[0]) == pin[0] and int(move[1]) == pin[1]:
                         squares = (move[0], move[1], move[2], move[3])
@@ -171,6 +180,7 @@ class Moves:
                         board[int(squares[2])][int(squares[3])] = piece
                         engine.moveLog.pop(-1)
                         squares = []
+        #Formatting the List
         counter = 0
         for i in range(len(moves)):
             try:
@@ -179,14 +189,14 @@ class Moves:
                     counter += 1
             except IndexError:
                 break
-        self.castling(board, whiteToMove, moves, inCheck, self.getAllPossibleMoves(not whiteToMove, board, False, moveLog, prevPiece))
+        self.castling(board, whiteToMove, moves, inCheck, self.getAllPossibleMoves(not whiteToMove, board, False, moveLog, prevPiece)) #Checking if castling is an available move
         return moves, inCheck
 
 
-    def getAllPossibleMoves(self, whiteToMove, board, checkKingMoves, moveLog, prevPiece):
+    def getAllPossibleMoves(self, whiteToMove, board, checkKingMoves, moveLog, prevPiece): #Finds all the moves that can be made, irrespective of checks and pins
         colour = "w" if whiteToMove else "b"
         moves = []
-        for row in range(rowSize):
+        for row in range(rowSize): #Iterating through the board and finding all possible moves for whatever piece is there
             for col in range(colSize):
                 if board[row][col][0] == colour:
                     piece = board[row][col][1]
@@ -204,21 +214,25 @@ class Moves:
                         self.getQueenMoves(row, col, moves, board, colour, checkKingMoves)
         return moves
         
-    def castling(self, board, whiteToMove, moves, inCheck, enemyMoves):
+    def castling(self, board, whiteToMove, moves, inCheck, enemyMoves): #Can the King castle?
+        kingPos = self.getKingLocation(whiteToMove, board)
         long = short = False
         if whiteToMove:
+            initialKingPos = (7, 4)
             rCoord = '7'
             if not (self.wKingHasMoved or inCheck):
-                if not self.wRook1HasMoved and board[7][1] == '--' and board[7][2] == '--' and board[7][3] == '--':
+                if not self.wRook1HasMoved and board[7][1] == '--' and board[7][2] == '--' and board[7][3] == '--': #Checks if Long Castle is possible for White
                     long = True
-                if not self.wRook2HasMoved and board[7][5] == '--' and board[7][6] == '--':
+                if not self.wRook2HasMoved and board[7][5] == '--' and board[7][6] == '--': #Checks if Short Castle is possible for White
                     short = True
+            
         else:
+            initialKingPos = (0, 4)
             rCoord = '0'
             if not (self.bKingHasMoved or inCheck):
-                if not self.bRook1HasMoved and board[0][1] == '--' and board[0][2] == '--' and board[0][3] == '--':
+                if not self.bRook1HasMoved and board[0][1] == '--' and board[0][2] == '--' and board[0][3] == '--':#Checks if Long Castle is possible for Black
                     long = True
-                if not self.bRook2HasMoved and board[0][5] == '--' and board[0][6] == '--':
+                if not self.bRook2HasMoved and board[0][5] == '--' and board[0][6] == '--':#Checks if Short Castle is possible for Black
                     short = True
         
         for move in enemyMoves:
@@ -226,22 +240,23 @@ class Moves:
                 short = False
             if (move[2] == rCoord and (move[3] == '2' or move[3] == '3')):
                 long = False
-        
-        if whiteToMove and long:
-            moves.append('7472')
-        if whiteToMove and short:
-            moves.append('7476')
-        if not whiteToMove and long:
-            moves.append('0402')
-        if not whiteToMove and short:
-            moves.append('0406')
+         #Adding the moves to the moves list
+        if kingPos == initialKingPos:
+            if whiteToMove and long:
+                moves.append('7472')
+            if whiteToMove and short:
+                moves.append('7476')
+            if not whiteToMove and long:
+                moves.append('0402')
+            if not whiteToMove and short:
+                moves.append('0406')
         
     
-    def getPawnMoves(self, r, c, moves, board, colour, checkKingMoves, moveLog, prevPiece):
+    def getPawnMoves(self, r, c, moves, board, colour, checkKingMoves, moveLog, prevPiece): #Gets the moves for whichever pawn is being checked
         enPassant = ''
-        if prevPiece == 'p' and (int(moveLog[0][2]) - int(moveLog[0][0]) == 2 or int(moveLog[0][2]) - int(moveLog[0][0]) == -2):
+        if prevPiece == 'p' and (int(moveLog[0][2]) - int(moveLog[0][0]) == 2 or int(moveLog[0][2]) - int(moveLog[0][0]) == -2): #Checks for En Passant
             enPassant = [moveLog[0][2], moveLog[0][3]]
-        if colour == "w":
+        if colour == "w": #Finds pawn moves for white pawns
             if board[r-1][c] == "--" and r != 0:
                 moves.append(str(r) + str(c) + str(r-1) + str(c))
                 if r == 6 and board[r-2][c] == "--":
@@ -258,7 +273,7 @@ class Moves:
                 elif r == int(enPassant[0]) and  c == int(enPassant[1]) - 1:
                     moves.append(str(r) + str(c) + str(r - 1) + str(c + 1))
 
-        else:
+        else: #Finds pawn moves for black pawns
             if board[r+1][c] == "--" and r != 7:
                 moves.append(str(r) + str(c) + str(r+1) + str(c))
                 if r == 1 and board[r+2][c] == "--":
@@ -277,7 +292,7 @@ class Moves:
             
             
 
-    def getKnightMoves(self, r, c, moves, board, colour, checkKingMoves):
+    def getKnightMoves(self, r, c, moves, board, colour, checkKingMoves): #Finds the moves for whichever knight is being checked
         directions = ((2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (-1, 2), (1, -2), (-1, -2))
         enemyColour = "b" if colour == "w" else "w"
         for d in directions:
@@ -288,7 +303,7 @@ class Moves:
                     moves.append(str(r) + str(c) + str(endRow) + str(endCol))
 
 
-    def getBishopMoves(self, r, c, moves, board, colour, checkKingMoves):
+    def getBishopMoves(self, r, c, moves, board, colour, checkKingMoves): #Finds the moves for whichever bishop is being checked
         directions = ((1, 1), (-1, 1), (-1, -1), (1, -1))
         enemyColour = "b" if colour == "w" else "w"
         for d in directions:
@@ -308,7 +323,7 @@ class Moves:
                 else:
                     break
 
-    def getRookMoves(self, r, c, moves, board, colour, checkKingMoves):
+    def getRookMoves(self, r, c, moves, board, colour, checkKingMoves): #Finds the moves for whichever rook is being checked
         directions = ((1, 0), (0, 1), (-1, 0), (0, -1))
         enemyColour = "b" if colour == "w" else "w"
         for d in directions:
@@ -328,11 +343,11 @@ class Moves:
                 else:
                     break
                     
-    def getQueenMoves(self, r, c, moves, board, colour, checkKingMoves):
+    def getQueenMoves(self, r, c, moves, board, colour, checkKingMoves): #Finds the moves for the Queen
         self.getRookMoves(r, c, moves, board, colour, checkKingMoves)
         self.getBishopMoves(r, c, moves, board, colour, checkKingMoves)
 
-    def getKingMoves(self, r, c, moves, board, colour, checkKingMoves):
+    def getKingMoves(self, r, c, moves, board, colour, checkKingMoves): #Finds the moves for the King
         directions = ((1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, 1), (-1, -1), (1, -1))
         enemyColour = "b" if colour == "w" else "w"
         for d in directions:
@@ -348,7 +363,7 @@ class Moves:
             for move in moves:
                 if int(move[0]) == r and int(move[1]) == c:
                     kingMoves.append(move)
-            for move in kingMoves:
+            for move in kingMoves: #Removing the moves that put the King into check
                 piece = board[int(move[2])][int(move[3])]
                 newBoard[int(move[2])][int(move[3])] = 'wK' if colour == 'w' else 'bK'
                 newBoard[r][c] = "--"

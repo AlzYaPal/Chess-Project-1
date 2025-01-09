@@ -1,0 +1,543 @@
+#Importing the Libraries
+
+IMPORT sys, pygame
+
+from chess_engine IMPORT *
+
+from colours IMPORT *
+
+from graphics IMPORT *
+
+from moves IMPORT *
+
+from notation IMPORT *
+
+from vars IMPORT *
+
+
+
+'''
+
+This is resposible FOR pulling all the algorithms together and getting them all to work IN the order required
+
+'''
+
+
+
+DEFINE CLASS Main:
+
+    DEFINE FUNCTION __init__(self):
+
+        pygame.init() #Initialise Pygame
+
+        SET self.engine TO Engine()
+
+        SET self.screen TO pygame.display.set_mode((width, height)) #Sets the board size with the width and height variables FOR vars.py
+
+        SET self.board TO self.engine.getBoard()
+
+
+
+        # Dictionary to load the names and images (pgn) FOR all pieces
+
+        SET self.pieces TO {"wR": pygame.transform.scale(pygame.image.load("assets/pieces/wR.png"), (squareSize, squareSize)), #White Rook
+
+                  "wN": pygame.transform.scale(pygame.image.load("assets/pieces/wN.png"), (squareSize, squareSize)), #White Knight
+
+                  "wB": pygame.transform.scale(pygame.image.load("assets/pieces/wB.png"), (squareSize, squareSize)), #White Bishop
+
+                  "wQ": pygame.transform.scale(pygame.image.load("assets/pieces/wQ.png"), (squareSize, squareSize)), #White Queen
+
+                  "wK": pygame.transform.scale(pygame.image.load("assets/pieces/wK.png"), (squareSize, squareSize)), #White King
+
+                  "wp": pygame.transform.scale(pygame.image.load("assets/pieces/wp.png"), (squareSize, squareSize)), #WHite Pawn
+
+                  "bR": pygame.transform.scale(pygame.image.load("assets/pieces/bR.png"), (squareSize, squareSize)), #Black Rook
+
+                  "bN": pygame.transform.scale(pygame.image.load("assets/pieces/bN.png"), (squareSize, squareSize)), #Black Knight
+
+                  "bB": pygame.transform.scale(pygame.image.load("assets/pieces/bB.png"), (squareSize, squareSize)), #Black Bishop
+
+                  "bQ": pygame.transform.scale(pygame.image.load("assets/pieces/bQ.png"), (squareSize, squareSize)), #Black Queen
+
+                  "bK": pygame.transform.scale(pygame.image.load("assets/pieces/bK.png"), (squareSize, squareSize)), #Black King
+
+                  "bp": pygame.transform.scale(pygame.image.load("assets/pieces/bp.png"), (squareSize, squareSize)), #Black Pawn
+
+                  }
+
+        SET self.clicks TO 0
+
+        SET self.squares TO []
+
+        SET self.whiteToMove TO True
+
+
+
+        # Added Icon and Caption
+
+        pygame.display.set_icon(pygame.image.load("assets/icon/icon.png"))
+
+        pygame.display.set_caption("Chess AI")
+
+    
+
+    #Algorithm FOR IF IN checkmate
+
+    DEFINE FUNCTION checkmate(self, whiteToMove):
+
+        SET font TO pygame.font.Font("assets/font/dahliaregictik.ttf", 44)
+
+        IF whiteToMove:
+
+            SET checkmateStr TO font.render("White Wins By Checkmate!", True, (0, 0, 0))
+
+            self.screen.blit(checkmateStr, (10, 268))
+
+        ELSE:
+
+            SET checkmateStr TO font.render("Black Wins By Checkmate!", True, (0, 0, 0))
+
+            self.screen.blit(checkmateStr, (12, 268))
+
+
+
+            
+
+    #Stalemate (No Legal Moves + Not In check)
+
+    DEFINE FUNCTION stalemate(self):
+
+        OUTPUT("Stalemate")
+
+        SET font TO pygame.font.Font("assets/font/dahliaregictik.ttf", 44)
+
+        SET stalemateStr TO font.render("Draw By Stalemate!", True, (0, 0, 0))
+
+        self.screen.blit(stalemateStr, (90, 278))
+
+
+
+
+
+    #Main Game Loop
+
+    DEFINE FUNCTION mainLoop(self):
+
+        SET previousMove TO ''
+
+        SET previousPiece TO ''
+
+        SET promotion TO False
+
+        SET promotionTurn TO False
+
+        SET colour TO 0
+
+        SET screen TO self.screen
+
+        SET board TO self.board
+
+        SET whiteToMove TO self.whiteToMove
+
+        SET squares TO self.squares
+
+        SET engine TO self.engine
+
+        SET moves TO Moves(board)
+
+        SET validMoves, inCheck  TO moves.getValidMoves(whiteToMove, board, previousMove, previousPiece)
+
+        SET moveMade TO False #Flag FOR when a move is made
+
+        SET inCheckmate TO False
+
+        SET inStalemate TO False
+
+        SET notation TO Notation()
+
+        SET running TO True
+
+        WHILE running:
+
+            screen.fill((255, 255, 255)) #Fill IN the board with white
+
+            FOR event IN pygame.event.get():
+
+                IF event.type EQUALS pygame.QUIT: #If X button clicked
+
+                    SET running TO False
+
+                ELSEIF event.type EQUALS pygame.KEYDOWN: #If a key is pressed on the keyboard
+
+                    IF event.key EQUALS pygame.K_LCTRL: #If said key is the left Control Key
+
+                        #Change the colour of the board
+
+                        colour += 1
+
+                        IF colour EQUALS 12:
+
+                            SET colour TO 0
+
+                    ELSEIF event.key EQUALS pygame.K_x: #If said key is 'x'
+
+                        SET self.clicks TO 0
+
+                        SET squares TO []
+
+
+
+                ELSEIF event.type EQUALS pygame.MOUSEBUTTONDOWN: #If the mouse is clicked
+
+                    SET pos TO pygame.mouse.get_pos() #Gets the mouse position as a tuple
+
+                    squares.append(pos[1] // squareSize)
+
+                    squares.append(pos[0] // squareSize)
+
+                    
+
+                    IF promotion: #If a pawn has reached the final rank
+
+                        IF ((0 <= pos[1] <= 75 and whiteToMove) or (525 <= pos[1] <= 600 and not whiteToMove)) and \
+
+                            (squares[3] * squareSize) <= pos[0] < ((squares[3] + 1) * squareSize):
+
+                            IF whiteToMove:
+
+                                #Promoted to Queen
+
+                                IF pos[1] <= 37.5 and pos[0] - (squares[3] * squareSize) <= 37.5:
+
+                                    SET board[squares[2]][squares[3]] TO 'wQ'
+
+                                    SET board[squares[0]][squares[1]] TO '--'
+
+                                #Underpromoted to Knight
+
+                                ELSEIF pos[1] <= 37.5 and 37.5 <= pos[0] - (squares[3] * squareSize) < 75:
+
+                                    SET board[squares[2]][squares[3]] TO 'wN'
+
+                                    SET board[squares[0]][squares[1]] TO '--'
+
+                                #Underpromoted to Rook
+
+                                ELSEIF 37.5 <= pos[1] - (squares[2] * squareSize) < 75 and pos[0] - (squares[3] * squareSize) <= 37.5:
+
+                                    SET board[squares[2]][squares[3]] TO 'wR'
+
+                                    SET board[squares[0]][squares[1]] TO '--'
+
+                                #Underpromoted to Bishop
+
+                                ELSE:
+
+                                    SET board[squares[2]][squares[3]] TO 'wB'
+
+                                    SET board[squares[0]][squares[1]] TO '--'
+
+                            ELSE:
+
+                                #Same basis as FOR white
+
+                                IF pos[1] >= 562.5 and pos[0] - (squares[3] * squareSize) <= 37.5:
+
+                                    SET board[squares[2]][squares[3]] TO 'bB'
+
+                                    SET board[squares[0]][squares[1]] TO '--'
+
+                                ELSEIF pos[1] <= 562.5 and 37.5 <= pos[0] - (squares[3] * squareSize) < 75:
+
+                                    SET board[squares[2]][squares[3]] TO 'bR'
+
+                                    SET board[squares[0]][squares[1]] TO '--'
+
+                                ELSEIF 562.5 <= pos[1] - (squares[2] * squareSize) < 525 and pos[0] - (squares[3] * squareSize) <= 37.5:
+
+                                    SET board[squares[2]][squares[3]] TO 'bN'
+
+                                    SET board[squares[0]][squares[1]] TO '--'
+
+                                ELSE:
+
+                                    SET board[squares[2]][squares[3]] TO 'bQ'
+
+                                    SET board[squares[0]][squares[1]] TO '--'
+
+                            SET moveMade TO True
+
+                            SET engine.RFMoveLog[-1] TO engine.RFMoveLog[-1] + "=" + board[squares[2]][squares[3]][1]
+
+                            
+
+
+
+                    
+
+                    IF board[squares[-2]][squares[-1]] != "--" and self.clicks EQUALS 0 and not promotion:
+
+                        SET self.clicks TO 1
+
+                        SET allyColour TO 'w' IF whiteToMove else 'b'
+
+                    ELSEIF self.clicks EQUALS 1 and board[pos[1] // squareSize][pos[0] // squareSize][0] != allyColour: #If a possible move is made
+
+                        SET self.clicks TO 0
+
+                        SET move TO str(squares[0]) + str(squares[1]) + str(squares[2]) + str(squares[3])
+
+                        IF move IN validMoves: #|If the selected move is valid
+
+                            engine.moveLog.append((move, board[squares[2]][squares[3]]))
+
+                            SET previousMove TO engine.moveLog[-1]
+
+                            SET engine.RFMoveLog TO (notation.toRankFile(engine.moveLog, board, inCheck, inCheckmate))
+
+                            SET previousPiece TO board[squares[0]][squares[1]][1]
+
+                            IF move EQUALS '0402': #Long Castles FOR Black
+
+                                SET board[0][4] TO '--'
+
+                                SET board[0][0] TO '--'
+
+                                SET board[0][2] TO 'bK'
+
+                                SET board[0][3] TO 'bR'
+
+                                SET moves.bKingHasMoved TO True
+
+                                SET moves.bRook1HasMoved TO True
+
+                            ELSEIF move EQUALS '0406': #Short Castles FOR Black
+
+                                SET board[0][4] TO '--'
+
+                                SET board[0][7] TO '--'
+
+                                SET board[0][6] TO 'bK'
+
+                                SET board[0][5] TO 'bR'
+
+                                SET moves.bKingHasMoved TO True
+
+                                SET moves.bRook2HasMoved TO True
+
+                            ELSEIF move EQUALS '7472': #Long Castles FOR White
+
+                                SET board[7][4] TO '--'
+
+                                SET board[7][0] TO '--'
+
+                                SET board[7][2] TO 'wK'
+
+                                SET board[7][3] TO 'wR'
+
+                                SET moves.wKingHasMoved TO True
+
+                                SET moves.wRook1HasMoved TO True
+
+                            ELSEIF move EQUALS '7476': #Short Castles FOR Black
+
+                                SET board[7][4] TO '--'
+
+                                SET board[7][7] TO '--'
+
+                                SET board[7][6] TO 'wK'
+
+                                SET board[7][5] TO 'wR'
+
+                                SET moves.wKingHasMoved TO True
+
+                                SET moves.wRook2HasMoved TO True
+
+                            ELSEIF board[int(move[0])][int(move[1])][1] EQUALS 'p' and move[1] != move[3] and board[int(move[2])][int(move[3])] EQUALS '--': #If En Passant Played
+
+                                SET board[squares[2]][squares[3]] TO board[squares[0]][squares[1]]
+
+                                SET board[squares[0]][squares[1]] TO '--'
+
+                                IF whiteToMove:
+
+                                    SET board[squares[2] + 1][squares[3]] TO '--'
+
+                                ELSE:
+
+                                    SET board[squares[2] - 1][squares[3]] TO '--'
+
+
+
+                            ELSEIF board[squares[0]][squares[1]][1] EQUALS 'p' and ((whiteToMove and squares[2] EQUALS 0) or (not whiteToMove and squares[2] EQUALS 7)): #If a pawn reaches the back rank (promotion)
+
+                                SET board[squares[0]][squares[1]] TO '--'
+
+                                IF whiteToMove:
+
+                                    CALL Graphics.pawnPromotionSquare(screen, squares[2], squares[3], self.pieces["wB"], self.pieces["wN"], self.pieces["wR"], self.pieces["wQ"], colour) 
+
+                                ELSE:
+
+                                    CALL Graphics.pawnPromotionSquare(screen, squares[2], squares[3], self.pieces["bB"], self.pieces["bN"], self.pieces["bR"], self.pieces["bQ"], colour) 
+
+                                SET promotion TO True
+
+                                IF whiteToMove:
+
+                                    SET promotionTurn TO True
+
+                                ELSE:
+
+                                    SET promotionTurn TO False
+
+                            ELSE:
+
+                                SET board[squares[2]][squares[3]] TO board[squares[0]][squares[1]]
+
+                                SET board[squares[0]][squares[1]] TO "--"
+
+                                IF squares[0] EQUALS 0 and squares[1] EQUALS 0: #If the A-File Black Rook has moved
+
+                                    SET moves.bRook1HasMoved TO True
+
+                                ELSEIF squares[0] EQUALS 0 and squares[1] EQUALS 7: #If the H-file Black Rook has moved
+
+                                    SET moves.bRook2HasMoved TO True
+
+                                ELSEIF squares[0] EQUALS 0 and squares[1] EQUALS 4: #If the Black King has moved
+
+                                    SET moves.bKingHasMoved TO True
+
+                                ELSEIF squares[0] EQUALS 7 and squares[1] EQUALS 0: #If the A-File White Rook has moved
+
+                                    SET moves.wRook1HasMoved TO True
+
+                                ELSEIF squares[0] EQUALS 7 and squares[1] EQUALS 7: #If the H-File White Rook has moved
+
+                                    SET moves.wRook2HasMoved TO True
+
+                                ELSEIF squares[0] EQUALS 7 and squares[1] EQUALS 4: #If the White King has moved
+
+                                    SET moves.wKingHasMoved TO True
+
+                            IF not promotion:
+
+                                SET squares TO []
+
+                                SET moveMade TO True
+
+                        ELSE:
+
+                            SET clicks TO 0
+
+                            SET squares TO []
+
+
+
+                    ELSEIF self.clicks EQUALS 1 and board[pos[1] // squareSize][pos[0] // squareSize][0] EQUALS allyColour:
+
+                        SET squares TO [pos[1] // squareSize, pos[0] // squareSize]
+
+
+
+                    ELSE:
+
+                        FOR i IN range(2):
+
+                            squares.pop(-1)
+
+            IF moveMade:
+
+                SET whiteToMove TO not whiteToMove #Switch whose turn it is
+
+                SET validMoves, inCheck TO moves.getValidMoves(whiteToMove, board, previousMove, previousPiece) #Find all the valid moves IN the position
+
+                SET moveMade TO False
+
+                IF validMoves EQUALS []: #Is it checkmate or stalemate or neither?
+
+                    IF inCheck EQUALS True:
+
+                        SET inCheckmate TO True
+
+                        SET whiteToMove TO not whiteToMove
+
+                    ELSE:
+
+                        SET inStalemate TO True
+
+                SET promotion TO False
+
+
+
+
+
+            #Setting up the board
+
+            CALL Graphics.drawSquares(screen, colours[colour]) 
+
+            CALL Graphics.drawPieces(screen, board, self.pieces) 
+
+            IF self.clicks EQUALS 1:
+
+                CALL Graphics.showHighlights(screen, validMoves, squares) 
+
+            IF promotion:
+
+                SET whiteToMove TO promotionTurn
+
+                SET validMoves TO []
+
+                IF whiteToMove:
+
+                    CALL Graphics.pawnPromotionSquare(screen, squares[2], squares[3], self.pieces["wB"], self.pieces["wN"], self.pieces["wR"], self.pieces["wQ"], colour) 
+
+                ELSE:
+
+                    CALL Graphics.pawnPromotionSquare(screen, squares[2], squares[3], self.pieces["bB"], self.pieces["bN"], self.pieces["bR"], self.pieces["bQ"], colour) 
+
+            
+
+            #Checkmate
+
+            IF inCheckmate:
+
+                pygame.display.flip()
+
+                self.checkmate(whiteToMove)
+
+                SET running TO False
+
+            
+
+            #Stalemate
+
+            IF inStalemate:
+
+                pygame.display.flip()
+
+                SET running TO self.stalemate()
+
+                SET running TO False
+
+            
+
+            pygame.display.flip()         
+
+
+
+#Running the Main Loop
+
+SET main TO Main()
+
+main.mainLoop()
+
+
+
+#Closes the program
+
+pygame.quit()
+
+sys.exit()

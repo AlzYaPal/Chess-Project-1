@@ -1,0 +1,77 @@
+IMPORT pygame
+
+from colours IMPORT *
+
+from vars IMPORT *
+
+pygame.init()
+
+
+
+DEFINE CLASS Graphics:
+
+
+
+    DEFINE FUNCTION drawSquares(screen, colour): #Drawing the black and white squares on the board
+
+        FOR row IN range(rowSize):
+
+            FOR col IN range(colSize):
+
+                IF (row + col) % 2 EQUALS 1:
+
+                    pygame.draw.rect(screen, colour, (row * squareSize, col * squareSize, squareSize, squareSize))
+
+
+
+    DEFINE FUNCTION drawPieces(screen, board, pieces): #Drawing the pieces on the board
+
+        FOR row IN range(rowSize):
+
+            FOR col IN range(colSize):
+
+                IF board[row][col] != "--":
+
+                    screen.blit(pieces[board[row][col]], (col * squareSize, row * squareSize))
+
+
+
+    DEFINE FUNCTION showHighlights(screen, moves, coords): #Highlighting the squares FOR valid moves
+
+        IF moves != []:
+
+            FOR move IN moves:
+
+                IF str(coords[0]) EQUALS move[0] and str(coords[1]) EQUALS move[1]:
+
+                    SET rect TO pygame.draw.rect(screen, (50, 0, 0), pygame.Rect(int(move[3]) * squareSize, int(move[2]) * squareSize, squareSize, squareSize), 10)
+
+
+
+    DEFINE FUNCTION pawnPromotionSquare(screen, r, c, bishop, knight, rook, queen, colour):
+
+        IF (r + c) % 2 EQUALS 0:
+
+            pygame.draw.rect(screen, (255, 255, 255), (c * squareSize, r * squareSize, squareSize, squareSize))
+
+        ELSE:
+
+            pygame.draw.rect(screen, colours[colour], (c * squareSize, r * squareSize, squareSize, squareSize))
+
+        SET bishop TO pygame.transform.scale(bishop, (squareSize // 2 - 2, squareSize // 2 - 4))
+
+        SET knight TO pygame.transform.scale(knight, (squareSize // 2 - 2, squareSize // 2 - 4))
+
+        SET rook TO pygame.transform.scale(rook, (squareSize // 2 - 2, squareSize // 2 - 4))
+
+        SET queen TO pygame.transform.scale(queen, (squareSize // 2 - 2, squareSize // 2 - 4))
+
+        screen.blit(queen, (squareSize * c + 2, squareSize * r + 2))
+
+        screen.blit(rook, (squareSize * c + 2, squareSize * r + (squareSize // 2) + 2))
+
+        screen.blit(knight, (squareSize * c + (squareSize // 2) + 2, squareSize * r + 2))
+
+        screen.blit(bishop, (squareSize * c + (squareSize // 2) + 2, squareSize * r + (squareSize // 2) + 2))
+
+        pygame.display.flip()

@@ -8,7 +8,7 @@ from notation import *
 from vars import *
 
 '''
-General Algorithm for the Project
+This is resposible for pulling all the algorithms together and getting them all to work in the order required
 '''
 
 class Main:
@@ -42,6 +42,7 @@ class Main:
     
     #Algorithm for if in checkmate
     def checkmate(self, whiteToMove):
+        running = True
         font = pygame.font.Font("assets/font/dahliaregictik.ttf", 44)
         if whiteToMove:
             checkmateStr = font.render("White Wins By Checkmate!", True, (0, 0, 0))
@@ -49,14 +50,24 @@ class Main:
         else:
             checkmateStr = font.render("Black Wins By Checkmate!", True, (0, 0, 0))
             self.screen.blit(checkmateStr, (12, 268))
+        pygame.display.flip()
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
 
             
     #Stalemate (No Legal Moves + Not In check)
     def stalemate(self):
-        print("Stalemate")
         font = pygame.font.Font("assets/font/dahliaregictik.ttf", 44)
         stalemateStr = font.render("Draw By Stalemate!", True, (0, 0, 0))
         self.screen.blit(stalemateStr, (90, 278))
+        pygame.display.flip()
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
 
 
     #Main Game Loop
@@ -251,7 +262,6 @@ class Main:
             
             #Checkmate
             if inCheckmate:
-                pygame.display.flip()
                 self.checkmate(whiteToMove)
                 running = False
             
@@ -263,15 +273,10 @@ class Main:
             
             pygame.display.flip()         
 
-
+#Running the Main Loop
 main = Main()
 main.mainLoop()
 
-running = True
-while running:
-    for e in pygame.event.get():
-        if e.type == pygame.QUIT:
-            running = False
-
+#Closes the program
 pygame.quit()
 sys.exit()
