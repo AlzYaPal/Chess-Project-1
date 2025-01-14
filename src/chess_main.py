@@ -19,7 +19,7 @@ class Main:
         self.screen = pygame.display.set_mode((width, height)) #Sets the board size with the width and height variables for vars.py
         self.board = self.engine.getBoard()
 
-        # Dictionary to load the names and images (pgn) for all pieces
+        # Dictionary to load the names and images (png) for all pieces
         self.pieces = {"wR": pygame.transform.scale(pygame.image.load("assets/pieces/wR.png"), (squareSize, squareSize)), #White Rook
                   "wN": pygame.transform.scale(pygame.image.load("assets/pieces/wN.png"), (squareSize, squareSize)), #White Knight
                   "wB": pygame.transform.scale(pygame.image.load("assets/pieces/wB.png"), (squareSize, squareSize)), #White Bishop
