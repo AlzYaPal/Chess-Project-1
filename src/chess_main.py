@@ -1,5 +1,6 @@
 #Importing the Libraries
 import sys, pygame
+from intro_screen import *
 from chess_engine import *
 from colours import *
 from graphics import *
@@ -72,6 +73,8 @@ class Main:
 
     #Main Game Loop
     def mainLoop(self):
+        screens = Screens()
+        val = screens.screenNum(self.screen)
         previousMove = ''
         previousPiece = ''
         promotion = False
@@ -103,7 +106,6 @@ class Main:
                     elif event.key == pygame.K_x: #If said key is 'x'
                         self.clicks = 0
                         squares = []
-
                 elif event.type == pygame.MOUSEBUTTONDOWN: #If the mouse is clicked
                     pos = pygame.mouse.get_pos() #Gets the mouse position as a tuple
                     squares.append(pos[1] // squareSize)
