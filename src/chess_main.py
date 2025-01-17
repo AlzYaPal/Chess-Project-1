@@ -39,7 +39,6 @@ class Main:
 
         # Added Icon and Caption
         pygame.display.set_icon(pygame.image.load("assets/icon/icon.png"))
-        pygame.display.set_caption("Chess AI")
     
     #Algorithm for if in checkmate
     def checkmate(self, whiteToMove):
@@ -93,6 +92,10 @@ class Main:
         notation = Notation()
         running = True
         while running:
+            if whiteToMove:
+                pygame.display.set_caption("Chess - White To Move")
+            else:
+                pygame.display.set_caption("Chess - Black To Move")
             screen.fill((255, 255, 255)) #Fill in the board with white
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: #If X button clicked
