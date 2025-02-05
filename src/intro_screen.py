@@ -6,20 +6,21 @@ class Screens:
     def __init__(self):
         self.screenNo = 0
 
-    def screenNum(self, screen):
+    def screenNum(self, screen): #Works out which screen is required next (Menu, Instructions, Game)
         if self.screenNo == 0:
-            self.screenNo = self.menu(screen)
+            self.screenNo = self.menu(screen) #Runs the menu screen
             self.screenNum(screen)
         elif self.screenNo == 2:
-            self.screenNo = self.instructions(screen)
+            self.screenNo = self.instructions(screen) #Runs the instructions screen
             self.screenNum(screen)
         else:
             print(3)
-            return 0
+            return 0 #Returns to main.py and the game starts
 
     def draw_button(self, colour, posX, posY):
-        pygame.draw.rect(self.screen, colour, (posX, posY, 360, 150))
+        pygame.draw.rect(self.screen, colour, (posX, posY, 360, 150)) #Draws the 'Play' and 'How to Play' buttons on the screen in the menu
 
+    #Function for the Main Menu
     def menu(self, screen):
         pygame.display.set_caption("Chess")
         button1Hover = False
@@ -73,6 +74,7 @@ class Screens:
             screen.blit(button2_font[1], (235, 485))
             pygame.display.flip()
 
+    #Function for the Instruction Screen
     def instructions(self, screen):
         pygame.display.set_caption("Chess Instructions - Press [ESC] to exit")
         onInstructions = True
@@ -80,8 +82,8 @@ class Screens:
         linkText = linkFont.render("Click to learn to play chess", True, (255, 255, 255), (0, 0, 0))
         linkTextHover = linkFont.render("Click to learn to play chess", True, (255, 255, 255), (255, 0, 0))
         fontSize = 25
-        usingTheEngine = [pygame.font.Font("assets/font/dahliaregictik.ttf", 70).render("Using the Engine", True, (0, 0, 0)), pygame.font.Font("assets/font/dahliaregictik.ttf", fontSize).render("The caption at the top always states who starts", True, (0, 0, 0)), pygame.font.Font("assets/font/dahliaregictik.ttf", fontSize).render("Select a piece to move it", True, (0, 0, 0)), pygame.font.Font("assets/font/dahliaregictik.ttf", fontSize).render("Spots to move to are highlighted", True, (0, 0, 0)), pygame.font.Font("assets/font/dahliaregictik.ttf", fontSize).render("Select the square to move to", True, (0, 0, 0)), pygame.font.Font("assets/font/dahliaregictik.ttf", fontSize).render("Click a non-highlighted space to cancel", True, (0, 0, 0))]
-        fontCoords = [(10, 150), (10, 250), (10, 300), (10, 350), (10, 400), (10, 450)]
+        usingTheEngine = [pygame.font.Font("assets/font/dahliaregictik.ttf", 70).render("Using the Engine", True, (0, 0, 0)), pygame.font.Font("assets/font/dahliaregictik.ttf", fontSize).render("The caption at the top always states whose", True, (0, 0, 0)), pygame.font.Font("assets/font/dahliaregictik.ttf", fontSize).render("turn it is", True, (0, 0, 0)), pygame.font.Font("assets/font/dahliaregictik.ttf", fontSize).render("Select a piece to move it", True, (0, 0, 0)), pygame.font.Font("assets/font/dahliaregictik.ttf", fontSize).render("Spots to move to are highlighted", True, (0, 0, 0)), pygame.font.Font("assets/font/dahliaregictik.ttf", fontSize).render("Select the square to move to", True, (0, 0, 0)), pygame.font.Font("assets/font/dahliaregictik.ttf", fontSize).render("Click a non-highlighted space to cancel", True, (0, 0, 0))]
+        fontCoords = [(10, 150), (10, 250), (10, 280), (10, 330), (10, 380), (10, 430), (10, 480)]
         while onInstructions:
             screen.fill((10, 108, 3))
             pos = pygame.mouse.get_pos()

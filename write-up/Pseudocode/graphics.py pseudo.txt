@@ -1,77 +1,57 @@
-IMPORT pygame
+START
 
-from colours IMPORT *
+Import Libraries
 
-from vars IMPORT *
+IMPORT pygame library
 
-pygame.init()
+IMPORT vars
 
-
-
-DEFINE CLASS Graphics:
+CLASS Graphics
 
 
 
-    DEFINE FUNCTION drawSquares(screen, colour): #Drawing the black and white squares on the board
+	PROCEDURE drawSquares:
 
-        FOR row IN range(rowSize):
+		FOR each square:
 
-            FOR col IN range(colSize):
+			DETERMINE the square's colour (alternating pattern)
 
-                IF (row + col) % 2 EQUALS 1:
+			DRAW the square on the screen
 
-                    pygame.draw.rect(screen, colour, (row * squareSize, col * squareSize, squareSize, squareSize))
-
-
-
-    DEFINE FUNCTION drawPieces(screen, board, pieces): #Drawing the pieces on the board
-
-        FOR row IN range(rowSize):
-
-            FOR col IN range(colSize):
-
-                IF board[row][col] != "--":
-
-                    screen.blit(pieces[board[row][col]], (col * squareSize, row * squareSize))
+	ENDPROCEDURE
 
 
 
-    DEFINE FUNCTION showHighlights(screen, moves, coords): #Highlighting the squares FOR valid moves
+	PROCEDURE drawPieces:
 
-        IF moves != []:
+		FOR each square:
 
-            FOR move IN moves:
+			IF a piece exists on the square:
 
-                IF str(coords[0]) EQUALS move[0] and str(coords[1]) EQUALS move[1]:
+				DRAW the corresponding piece image at the square's position
 
-                    SET rect TO pygame.draw.rect(screen, (50, 0, 0), pygame.Rect(int(move[3]) * squareSize, int(move[2]) * squareSize, squareSize, squareSize), 10)
+	ENDPROCEDURE
 
 
 
-    DEFINE FUNCTION pawnPromotionSquare(screen, r, c, bishop, knight, rook, queen, colour):
+	PROCEDURE showHighlights:
 
-        IF (r + c) % 2 EQUALS 0:
+		FOR each valid move corresponding to the selected piece:
 
-            pygame.draw.rect(screen, (255, 255, 255), (c * squareSize, r * squareSize, squareSize, squareSize))
+			DRAW a border round the square
 
-        ELSE:
+	ENDPROCEDURE
 
-            pygame.draw.rect(screen, colours[colour], (c * squareSize, r * squareSize, squareSize, squareSize))
 
-        SET bishop TO pygame.transform.scale(bishop, (squareSize // 2 - 2, squareSize // 2 - 4))
 
-        SET knight TO pygame.transform.scale(knight, (squareSize // 2 - 2, squareSize // 2 - 4))
+	PROCEDURE pawnPromotionSquare:
 
-        SET rook TO pygame.transform.scale(rook, (squareSize // 2 - 2, squareSize // 2 - 4))
+		DETERMINE the position for the pawn promotion options
 
-        SET queen TO pygame.transform.scale(queen, (squareSize // 2 - 2, squareSize // 2 - 4))
+		DRAW promotion options (bishop, knight, rook, queen) with respective images
 
-        screen.blit(queen, (squareSize * c + 2, squareSize * r + 2))
+		CHANGE the respective pawn into the chosen piece
 
-        screen.blit(rook, (squareSize * c + 2, squareSize * r + (squareSize // 2) + 2))
+	ENDPROCEDURE
 
-        screen.blit(knight, (squareSize * c + (squareSize // 2) + 2, squareSize * r + 2))
-
-        screen.blit(bishop, (squareSize * c + (squareSize // 2) + 2, squareSize * r + (squareSize // 2) + 2))
-
-        pygame.display.flip()
+END

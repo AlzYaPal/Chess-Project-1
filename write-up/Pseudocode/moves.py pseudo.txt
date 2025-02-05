@@ -1,1167 +1,191 @@
-from chess_engine IMPORT *
+START
 
-from vars IMPORT *
+Import Libraries
 
+IMPORT chess_engine
 
+IMPORT vars
 
-'''
+Class Moves
 
-This DEFINE CLASS is responsible FOR finding any possible moves FOR all pieces and
+	PROCEDURE __init__:
 
-weeding out any illegal moves (i.e. any that would put their own King IN check)
+		SET all castling condition variables to False (e.g., wKingHasMoved, bKingHasMoved, etc.)
+	
+	ENDPROCEDURE
 
-'''
 
 
+	PROCEDURE getKingLocation:
 
-DEFINE CLASS Moves:
+		FOR each row and column in the board:
 
-    DEFINE FUNCTION __init__(self, board):
+			IF the piece is a white king:
 
-        SET self.engine TO Engine()
+				STORE its location in wKingLocation
 
+			IF the piece is a black king:
 
+				STORE its location in bKingLocation
 
-        #Original Location of the Kings
+	ENDPROCEDURE
 
-        FOR r IN range(rowSize):
 
-            FOR c IN range(colSize):
 
-                IF board[r][c] EQUALS "wK":
+	PROCEDURE getValidMoves:
 
-                    SET self.wKingLocation TO (r, c)
+		CALL getKingLocation to find the location of the King with respect to whose turn it is
 
-                ELSEIF board[r][c] EQUALS "bK":
+		CALL getAllPossibleMoves to get all potential moves in the position (negating checks and pins)
 
-                    SET self.bKingLocation TO (r, c)
+		CALL searchForPinsAndChecks to identify all pins and checks
 
+		IF the king is in check:
 
+			FIND the attacking piece
 
-        #Sets the castling condition variables all to false (i.e. the Kings can castle IF there are no pieces IN the way)
+			LIMIT valid moves to escape the check
 
-        SET self.wKingHasMoved TO self.bKingHasMoved TO self.wRook1HasMoved TO self.wRook2HasMoved TO self.bRook1HasMoved TO self.bRook2HasMoved TO False
+				IF the king is in double check:
 
+					RESTRICT moves to king-only moves
 
+					REMOVE invalid moves that would place the king in check
 
-    #Gets the location of the King of the side who are moving this go
+		CHECK for any ability to castle
 
-    DEFINE FUNCTION getKingLocation(self, whiteToMove, board):
+		RETURN the final list of valid moves and whether the king is in check
 
-        IF whiteToMove:
+	ENDPROCEDURE
 
-            FOR r IN range(rowSize):
 
-                FOR c IN range(colSize):
 
-                    IF board[r][c] EQUALS "wK":
+	PROCEDURE getAllPossibleMoves:
 
-                        RETURN (r, c)
+		DETERMINE which side is having their move
 
-        ELSE:
+		FOR each piece on the board:
 
-            FOR r IN range(rowSize):
+			IDENTIFY the type of piece
 
-                FOR c IN range(colSize):
+			CALL the respective move function for the piece (e.g., getPawnMoves, getKnightMoves, etc.)
 
-                    IF board[r][c] EQUALS "bK":
+		RETURN the list of all possible moves
 
-                        RETURN (r, c)
+	ENDPROCEDURE
 
 
 
-    #Calls the getAllPossibleMoves function and removes any illegal moves
+	PROCEDURE castling:
 
-    DEFINE FUNCTION getValidMoves(self, whiteToMove, board, moveLog, prevPiece):
+		DETERMINE if castling is allowed for the current side
 
-        SET engine TO self.engine
+		VERIFY no pieces are in the way and the king is not in check
 
-        SET kingLocation TO self.getKingLocation(whiteToMove, board) #Gets the location of the King
+		ADD castling moves to the moves list if applicable
 
-        SET strKingLocation TO str(kingLocation[0]) + str(kingLocation[1]) #Converts the location to a string
+	ENDPROCEDURE
 
-        SET moves TO self.getAllPossibleMoves(whiteToMove, board, True, moveLog, prevPiece) #Gets every possible moves (negating checks and pins)
 
-        SET pins, checks TO self.searchForPinsAndChecks(kingLocation, board, whiteToMove) #Searches FOR all pins and checks being given
 
-        SET inCheck TO False
+	Piece-Specific Move Functions:
 
+	PROCEDURE getPawnMoves:
 
+		CHECK for forward moves
 
-        SET format TO []
+		CHECK for captures and en passant
 
-        IF checks != []: #If the king is currently IN check
+	ENDPROCEDURE
 
-            SET inCheck TO True
 
-            FOR check IN checks:
 
-                IF check != []: #I was getting a bug where I would get empty spaces IN the checks array, so I changed it 
+	PROCEDURE getKnightMoves:
 
-                                #to remove any 'checks' that were an empty list
+		ADD all L-shaped moves that are within the board and valid
 
-                    format.append(check[0])
 
-            SET checks TO format
+	ENDPROCEDURE
 
-            SET format TO []
 
-            IF len(checks) EQUALS 1: #If the King is IN check from one piece
+	PROCEDURE getBishopMoves:
 
-                SET check TO checks[0] #Formats the list so that it is 1D
+		ADD all diagonal moves until blocked
 
-                SET newBoard TO board
+	ENDPROCEDURE
 
-                SET blockOrTake TO []
 
-                IF kingLocation[0] EQUALS check[0]:
 
-                    SET diffX TO 0
+	PROCEDURE getRookMoves:
 
-                ELSEIF kingLocation[0] < check[0]:
+		ADD all horizontal and vertical moves until blocked
 
-                    SET diffX TO -1
+	ENDPROCEDURE
 
-                ELSE:
 
-                    SET diffX TO 1
 
+	PROCEDURE getQueenMoves:
 
+		COMBINE rook and bishop moves
 
-                IF kingLocation[1] EQUALS check[1]:
+	ENDPROCEDURE
 
-                    SET diffY TO 0
 
-                ELSEIF kingLocation[1] < check[1]:
 
-                    SET diffY TO -1
+	PROCEDURE getKingMoves:
 
-                ELSE:
+		ADD all adjacent squares
 
-                    SET diffY TO 1
+		REMOVE moves that place the king in check
 
-                SET distance TO [kingLocation[0] - check[0], kingLocation[1] - check[1]]
+	ENDPROCEDURE
 
-                
 
-                SET absDistance TO distance
 
-                IF distance[0] < 0:
+	PROCEDURE searchForPinsAndChecks:
 
-                    absDistance[0] *= -1
+		SEARCH for knight checks
 
-                IF distance[1] < 0:
+		SEARCH for pawn checks
 
-                    absDistance[1] *= -1
+		SEARCH for rook, bishop and queen checks and/or pins
 
+		RETURN the lists of pins and checks
 
+	ENDPROCEDURE
 
-                ELSE:
 
-                    SET absDistance TO distance
 
+	Helper Functions:
 
+	PROCEDURE findKnightChecks:
 
-                SET loopDistance TO absDistance[0] IF absDistance[0] != 0 else absDistance[1]
+		FIND all knight attacks on the king
 
+	ENDPROCEDURE
 
 
-                FOR i IN range(loopDistance):
 
-                    IF distance[0] EQUALS 0:
+	PROCEDURE findPawnChecks:
 
-                        SET absDistance[0] TO 1
+		FIND all pawn attacks on the king
 
-                    IF distance[1] EQUALS 0:
+	ENDPROCEDURE
 
-                        SET absDistance[1] TO 1
 
-                    blockOrTake.append(((diffX * i * distance[0] // absDistance[0]) + check[0], (diffY * i * distance[0] // absDistance[0]) + check[1]))
 
+	PROCEDURE findRookQueenChecks:
 
+		IDENTIFY potential pins and checks from rooks and queens
 
-                FOR i IN range(len(moves)):
+	ENDPROCEDURE
 
-                    SET move TO moves[i]
 
 
+	PROCEDURE findBishopQueenChecks:
 
-                    IF board[check[0]][check[1]][1] EQUALS "N":
+		IDENTIFY potential pins and checks from bishops and queens
 
-                        SET blockOrTake TO [check]
+	ENDPROCEDURE
 
-
-
-                    IF move[0:2] EQUALS strKingLocation:
-
-                        SET squares TO [int(move[0]), int(move[1]), int(move[2]), int(move[3])]
-
-
-
-                        engine.moveLog.append((move, board[squares[2]][squares[3]]))
-
-                        SET newBoard[squares[2]][squares[3]] TO newBoard[squares[0]][squares[1]]
-
-                        SET newBoard[squares[0]][squares[1]] TO "--"
-
-                        SET newMoves TO self.getAllPossibleMoves(not whiteToMove, newBoard, True, '', '')
-
-                        SET move TO engine.moveLog[-1]
-
-                        SET moveSquares TO move[0]
-
-                        SET piece TO move[1]
-
-                        SET board[int(moveSquares[0])][int(moveSquares[1])] TO board[int(moveSquares[2])][int(moveSquares[3])]
-
-                        SET board[int(moveSquares[2])][int(moveSquares[3])] TO piece
-
-                        engine.moveLog.pop(-1)
-
-                        SET moveSquares TO []
-
-                        FOR newMove IN newMoves:
-
-                            IF newMove[2:4] EQUALS str(squares[2]) + str(squares[3]):
-
-                                TRY:
-
-                                    SET moves[moves.index(move[0])] TO ''
-
-                                except ValueError:
-
-                                    PASS
-
-                        SET newBoard TO board
-
-                    
-
-                    ELSEIF not ((int(move[2]), int(move[3])) IN blockOrTake):
-
-                        SET moves[moves.index(move)] TO ''
-
-
-
-            ELSE: #If the King is IN check from two pieces (Double Check)
-
-                SET newBoard TO board
-
-                FOR i IN range(len(moves)):
-
-                    SET move TO moves[i]
-
-                    IF move[0:2] EQUALS strKingLocation:
-
-                        SET squares TO [int(move[0]), int(move[1]), int(move[2]), int(move[3])]
-
-                        engine.moveLog.append((move, board[squares[2]][squares[3]]))
-
-                        SET newBoard[squares[2]][squares[3]] TO newBoard[squares[0]][squares[1]]
-
-                        SET newBoard[squares[0]][squares[1]] TO "--"
-
-                        SET newMoves TO self.getAllPossibleMoves(not whiteToMove, newBoard, True, '', '')
-
-                        SET move TO engine.moveLog[-1]
-
-                        SET moveSquares TO move[0]
-
-                        SET piece TO move[1]
-
-                        SET board[int(moveSquares[0])][int(moveSquares[1])] TO board[int(moveSquares[2])][int(moveSquares[3])]
-
-                        SET board[int(moveSquares[2])][int(moveSquares[3])] TO piece
-
-                        engine.moveLog.pop(-1)
-
-                        SET moveSquares TO []
-
-                        FOR newMove IN newMoves:
-
-                            IF newMove[2:4] EQUALS str(squares[2]) + str(squares[3]):
-
-                                SET moves[moves.index(move[0])] TO ''
-
-                        SET newBoard TO board
-
-                    ELSE:
-
-                        SET moves[moves.index(move)] TO ''
-
-
-
-        SET counter TO 0
-
-        FOR i IN range(len(moves)):
-
-            TRY:
-
-                IF moves[i - counter] EQUALS '':
-
-                    moves.pop(i - counter)
-
-                    counter += 1
-
-            except IndexError:
-
-                break
-
-
-
-        IF pins != []: #Formatting the Pins List
-
-            FOR pin IN pins:
-
-                IF pin != []:
-
-                    FOR singlePin IN pin:
-
-                        format.append(singlePin)
-
-            SET pins TO format
-
-        
-
-            FOR move IN moves: #Removing moves IF the piece is pinned and the move would put the King IN check
-
-                FOR pin IN pins:
-
-                    IF int(move[0]) EQUALS pin[0] and int(move[1]) EQUALS pin[1]:
-
-                        SET squares TO (move[0], move[1], move[2], move[3])
-
-                        SET newBoard TO board
-
-                        engine.moveLog.append((move, board[int(squares[2])][int(squares[3])]))
-
-                        SET newBoard[int(squares[2])][int(squares[3])] TO board[int(squares[0])][int(squares[1])]
-
-                        SET newBoard[int(squares[0])][int(squares[1])] TO "--"
-
-                        SET newMoves TO self.getAllPossibleMoves(not whiteToMove, newBoard, True, '', '')
-
-                        FOR newMove IN newMoves:
-
-                            IF newMove[2:4] EQUALS str(kingLocation[0]) + str(kingLocation[1]):
-
-                                SET moves[moves.index(move)] TO ''
-
-                                break
-
-                        SET move TO engine.moveLog[-1]
-
-                        SET squares TO move[0]
-
-                        SET piece TO move[1]
-
-                        SET newBoard[int(squares[0])][int(squares[1])] TO newBoard[int(squares[2])][int(squares[3])]
-
-                        SET board[int(squares[2])][int(squares[3])] TO piece
-
-                        engine.moveLog.pop(-1)
-
-                        SET squares TO []
-
-        SET counter TO 0
-
-        FOR i IN range(len(moves)):
-
-            TRY:
-
-                IF moves[i - counter] EQUALS '':
-
-                    moves.pop(i - counter)
-
-                    counter += 1
-
-            except IndexError:
-
-                break
-
-        self.castling(board, whiteToMove, moves, inCheck, self.getAllPossibleMoves(not whiteToMove, board, False, moveLog, prevPiece)) #Checking IF castling is an available move
-
-        RETURN moves, inCheck
-
-
-
-
-
-    DEFINE FUNCTION getAllPossibleMoves(self, whiteToMove, board, checkKingMoves, moveLog, prevPiece): #Finds all the moves that can be made, irrespective of checks and pins
-
-        SET colour TO "w" IF whiteToMove else "b"
-
-        SET moves TO []
-
-        FOR row IN range(rowSize): #Iterating through the board and finding all possible moves FOR whatever piece is there
-
-            FOR col IN range(colSize):
-
-                IF board[row][col][0] EQUALS colour:
-
-                    SET piece TO board[row][col][1]
-
-                    IF piece EQUALS "K":
-
-                        self.getKingMoves(row, col, moves, board, colour, checkKingMoves)
-
-                    ELSEIF piece EQUALS "p":
-
-                        self.getPawnMoves(row, col, moves, board, colour, checkKingMoves, moveLog, prevPiece)
-
-                    ELSEIF piece EQUALS "N":
-
-                        self.getKnightMoves(row, col, moves, board, colour, checkKingMoves)
-
-                    ELSEIF piece EQUALS "B":
-
-                        self.getBishopMoves(row, col, moves, board, colour, checkKingMoves)
-
-                    ELSEIF piece EQUALS "R":
-
-                        self.getRookMoves(row, col, moves, board, colour, checkKingMoves)
-
-                    ELSEIF piece EQUALS "Q":
-
-                        self.getQueenMoves(row, col, moves, board, colour, checkKingMoves)
-
-        RETURN moves
-
-        
-
-    DEFINE FUNCTION castling(self, board, whiteToMove, moves, inCheck, enemyMoves): #Can the King castle?
-
-        SET long TO short TO False
-
-        IF whiteToMove:
-
-            SET rCoord TO '7'
-
-            IF not (self.wKingHasMoved or inCheck):
-
-                IF not self.wRook1HasMoved and board[7][1] EQUALS '--' and board[7][2] EQUALS '--' and board[7][3] EQUALS '--': #Checks IF Long Castle is possible FOR White
-
-                    SET long TO True
-
-                IF not self.wRook2HasMoved and board[7][5] EQUALS '--' and board[7][6] EQUALS '--': #Checks IF Short Castle is possible FOR White
-
-                    SET short TO True
-
-        ELSE:
-
-            SET rCoord TO '0'
-
-            IF not (self.bKingHasMoved or inCheck):
-
-                IF not self.bRook1HasMoved and board[0][1] EQUALS '--' and board[0][2] EQUALS '--' and board[0][3] EQUALS '--':#Checks IF Long Castle is possible FOR Black
-
-                    SET long TO True
-
-                IF not self.bRook2HasMoved and board[0][5] EQUALS '--' and board[0][6] EQUALS '--':#Checks IF Short Castle is possible FOR Black
-
-                    SET short TO True
-
-        
-
-        FOR move IN enemyMoves:
-
-            IF (move[2] EQUALS rCoord and (move[3] EQUALS '5' or move[3] EQUALS '6')):
-
-                SET short TO False
-
-            IF (move[2] EQUALS rCoord and (move[3] EQUALS '2' or move[3] EQUALS '3')):
-
-                SET long TO False
-
-         #Adding the moves to the moves list
-
-        IF whiteToMove and long:
-
-            moves.append('7472')
-
-        IF whiteToMove and short:
-
-            moves.append('7476')
-
-        IF not whiteToMove and long:
-
-            moves.append('0402')
-
-        IF not whiteToMove and short:
-
-            moves.append('0406')
-
-        
-
-    
-
-    DEFINE FUNCTION getPawnMoves(self, r, c, moves, board, colour, checkKingMoves, moveLog, prevPiece): #Gets the moves FOR whichever pawn is being checked
-
-        SET enPassant TO ''
-
-        IF prevPiece EQUALS 'p' and (int(moveLog[0][2]) - int(moveLog[0][0]) EQUALS 2 or int(moveLog[0][2]) - int(moveLog[0][0]) EQUALS -2): #Checks FOR En Passant
-
-            SET enPassant TO [moveLog[0][2], moveLog[0][3]]
-
-        IF colour EQUALS "w": #Finds pawn moves FOR white pawns
-
-            IF board[r-1][c] EQUALS "--" and r != 0:
-
-                moves.append(str(r) + str(c) + str(r-1) + str(c))
-
-                IF r EQUALS 6 and board[r-2][c] EQUALS "--":
-
-                    moves.append(str(r) + str(c) + str(r-2) + str(c))
-
-            IF c != 0:
-
-                IF (board[r-1][c-1] != "--" and board[r-1][c-1][0] != colour and r != 0) or (not checkKingMoves and board[r-1][c-1][0] EQUALS colour):
-
-                    moves.append(str(r) + str(c) + str(r-1) + str(c-1))
-
-            IF c != 7:
-
-                IF (board[r-1][c+1] != "--" and board[r-1][c+1][0] != colour and r != 0) or (not checkKingMoves and board[r-1][c+1][0] EQUALS colour):
-
-                    moves.append(str(r) + str(c) + str(r-1) + str(c+1))
-
-            IF enPassant != '':
-
-                IF r EQUALS int(enPassant[0]) and  c EQUALS int(enPassant[1]) + 1:
-
-                    moves.append(str(r) + str(c) + str(r - 1) + str(c - 1))
-
-                ELSEIF r EQUALS int(enPassant[0]) and  c EQUALS int(enPassant[1]) - 1:
-
-                    moves.append(str(r) + str(c) + str(r - 1) + str(c + 1))
-
-
-
-        ELSE: #Finds pawn moves FOR black pawns
-
-            IF board[r+1][c] EQUALS "--" and r != 7:
-
-                moves.append(str(r) + str(c) + str(r+1) + str(c))
-
-                IF r EQUALS 1 and board[r+2][c] EQUALS "--":
-
-                    moves.append(str(r) + str(c) + str(r+2) + str(c))
-
-            IF c != 0:
-
-                IF (board[r+1][c-1] != "--" and board[r+1][c-1][0] != colour and r != 0) or (not checkKingMoves and board[r+1][c-1][0] EQUALS colour):
-
-                    moves.append(str(r) + str(c) + str(r+1) + str(c-1))
-
-            IF c != 7:
-
-                IF (board[r+1][c+1] != "--" and board[r+1][c+1][0] != colour and r != 0) or (not checkKingMoves and board[r+1][c+1][0] EQUALS colour):
-
-                    moves.append(str(r) + str(c) + str(r+1) + str(c+1))
-
-            IF prevPiece EQUALS 'p':
-
-                IF int(moveLog[0][0]) - int(moveLog[0][2]) EQUALS 2 and board[int(moveLog[0][2])][int(moveLog[0][3]) - 1] EQUALS 'bp':
-
-                    moves.append(str(r) + str(c) + str(r + 1) + str(c + 1))
-
-                ELSEIF int(moveLog[0][0]) - int(moveLog[0][2]) EQUALS 2 and board[int(moveLog[0][2])][int(moveLog[0][3]) + 1] EQUALS 'bp':
-
-                    moves.append(str(r) + str(c) + str(r + 1) + str(c - 1))
-
-            
-
-            
-
-
-
-    DEFINE FUNCTION getKnightMoves(self, r, c, moves, board, colour, checkKingMoves): #Finds the moves FOR whichever knight is being checked
-
-        SET directions TO ((2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (-1, 2), (1, -2), (-1, -2))
-
-        SET enemyColour TO "b" IF colour EQUALS "w" else "w"
-
-        FOR d IN directions:
-
-            SET endRow TO r + d[0]
-
-            SET endCol TO c + d[1]
-
-            IF 0 <= endRow <= 7 and 0 <= endCol <= 7:
-
-                IF (board[endRow][endCol] EQUALS "--" or board[endRow][endCol][0] EQUALS enemyColour) or (not checkKingMoves and board[endRow][endCol][0] EQUALS colour):
-
-                    moves.append(str(r) + str(c) + str(endRow) + str(endCol))
-
-
-
-
-
-    DEFINE FUNCTION getBishopMoves(self, r, c, moves, board, colour, checkKingMoves): #Finds the moves FOR whichever bishop is being checked
-
-        SET directions TO ((1, 1), (-1, 1), (-1, -1), (1, -1))
-
-        SET enemyColour TO "b" IF colour EQUALS "w" else "w"
-
-        FOR d IN directions:
-
-            FOR i IN range(1, 8):
-
-                SET endRow TO r + d[0] * i
-
-                SET endCol TO c + d[1] * i
-
-                IF 0 <= endRow <= 7 and 0 <= endCol <= 7:
-
-                    SET endPiece TO board[endRow][endCol]
-
-                    IF endPiece EQUALS "--":
-
-                        moves.append(str(r) + str(c) + str(endRow) + str(endCol))
-
-                    ELSEIF endPiece[0] EQUALS enemyColour  or (not checkKingMoves and endPiece[0] EQUALS colour):
-
-                        moves.append(str(r) + str(c) + str(endRow) + str(endCol))
-
-                        break
-
-                    ELSE:
-
-                        break
-
-
-
-                ELSE:
-
-                    break
-
-
-
-    DEFINE FUNCTION getRookMoves(self, r, c, moves, board, colour, checkKingMoves): #Finds the moves FOR whichever rook is being checked
-
-        SET directions TO ((1, 0), (0, 1), (-1, 0), (0, -1))
-
-        SET enemyColour TO "b" IF colour EQUALS "w" else "w"
-
-        FOR d IN directions:
-
-            FOR i IN range(1, 8):
-
-                SET endRow TO r + d[0] * i
-
-                SET endCol TO c + d[1] * i
-
-                IF 0 <= endRow <= 7 and 0 <= endCol <= 7:
-
-                    SET endPiece TO board[endRow][endCol]
-
-                    IF endPiece EQUALS "--":
-
-                        moves.append(str(r) + str(c) + str(endRow) + str(endCol))
-
-                    ELSEIF endPiece[0] EQUALS enemyColour  or (not checkKingMoves and endPiece[0] EQUALS colour):
-
-                        moves.append(str(r) + str(c) + str(endRow) + str(endCol))
-
-                        break
-
-                    ELSE:
-
-                        break
-
-
-
-                ELSE:
-
-                    break
-
-                    
-
-    DEFINE FUNCTION getQueenMoves(self, r, c, moves, board, colour, checkKingMoves): #Finds the moves FOR the Queen
-
-        self.getRookMoves(r, c, moves, board, colour, checkKingMoves)
-
-        self.getBishopMoves(r, c, moves, board, colour, checkKingMoves)
-
-
-
-    DEFINE FUNCTION getKingMoves(self, r, c, moves, board, colour, checkKingMoves): #Finds the moves FOR the King
-
-        SET directions TO ((1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, 1), (-1, -1), (1, -1))
-
-        SET enemyColour TO "b" IF colour EQUALS "w" else "w"
-
-        FOR d IN directions:
-
-            SET endRow TO r + d[0]
-
-            SET endCol TO c + d[1]
-
-            IF 0 <= endRow <= 7 and 0 <= endCol <= 7:
-
-                IF board[endRow][endCol] EQUALS "--" or board[endRow][endCol][0] EQUALS enemyColour:
-
-                    moves.append(str(r) + str(c) + str(endRow) + str(endCol))
-
-        IF checkKingMoves:
-
-            SET newBoard TO board
-
-            SET piece TO ''
-
-            SET kingMoves TO []
-
-            FOR move IN moves:
-
-                IF int(move[0]) EQUALS r and int(move[1]) EQUALS c:
-
-                    kingMoves.append(move)
-
-            FOR move IN kingMoves: #Removing the moves that put the King into check
-
-                SET piece TO board[int(move[2])][int(move[3])]
-
-                SET newBoard[int(move[2])][int(move[3])] TO 'wK' IF colour EQUALS 'w' else 'bK'
-
-                SET newBoard[r][c] TO "--"
-
-                SET newLocation TO self.getKingLocation(True IF colour EQUALS 'w' else False, newBoard)
-
-                SET oppMoves TO self.getAllPossibleMoves(True IF colour EQUALS 'b' else False, newBoard, False, '', '')
-
-                FOR oppMove IN oppMoves:
-
-                    IF int(oppMove[2]) EQUALS int(newLocation[0]) and int(oppMove[3]) EQUALS int(newLocation[1]):
-
-                        TRY:
-
-                            moves.pop(moves.index(move))
-
-                        except ValueError:
-
-                            PASS
-
-                SET board[int(move[2])][int(move[3])] TO piece
-
-                SET board[int(move[0])][int(move[1])] TO 'wK' IF colour EQUALS 'w' else 'bK'
-
-
-
-
-
-
-
-
-
-    DEFINE FUNCTION searchForPinsAndChecks(self, kingLocation, board, whiteToMove):
-
-        SET allyColour TO "w" IF whiteToMove else "b"
-
-        SET enemyColour TO "w" IF allyColour EQUALS "b" else "b"
-
-        SET checks TO []
-
-        SET pins TO []
-
-        TRY:
-
-            checks.append(self.findKnightChecks(kingLocation, board, enemyColour))
-
-            IF checks EQUALS [[]]:
-
-                SET checks TO []
-
-        except TypeError:
-
-            PASS
-
-        checks.append(self.findPawnChecks(kingLocation, board, enemyColour))
-
-        IF checks EQUALS [[]]:
-
-            SET checks TO []
-
-        SET RQPins, RQChecks TO self.findRookQueenChecks(kingLocation, board, allyColour, enemyColour)
-
-        checks.append(RQChecks)
-
-        IF pins EQUALS [[]]:
-
-            SET pins TO []
-
-        pins.append(RQPins)
-
-        IF checks EQUALS [[]]:
-
-            SET checks TO []
-
-        SET BQPins, BQChecks TO self.findBishopQueenChecks(kingLocation, board, allyColour, enemyColour)
-
-        pins.append(BQPins)
-
-        IF pins EQUALS [[], []]:
-
-            SET pins TO []
-
-        checks.append(BQChecks)
-
-        IF checks EQUALS [[]]:
-
-            SET checks TO []
-
-        RETURN pins, checks
-
-        
-
-        
-
-    DEFINE FUNCTION findKnightChecks(self, kingLocation, board, enemyColour):
-
-        SET checks TO []
-
-        SET directions TO ((2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (-1, 2), (1, -2), (-1, -2))
-
-        FOR d IN directions:
-
-            TRY:
-
-                IF board[kingLocation[0] + d[0]][kingLocation[1] + d[1]] EQUALS (enemyColour + "N") and 0 <= (kingLocation[0] + d[0]) <= 7 and 0 <= (kingLocation[1] + d[1]) <= 7:
-
-                    checks.append((kingLocation[0] + d[0], kingLocation[1] + d[1]))
-
-            except IndexError:
-
-                PASS
-
-        RETURN checks
-
-    
-
-    DEFINE FUNCTION findPawnChecks(self, kingLocation, board, enemyColour):
-
-        SET checks TO []
-
-        IF enemyColour EQUALS 'w':
-
-            IF kingLocation[0] != 7:
-
-                IF kingLocation[1] != 7:
-
-                    IF board[kingLocation[0] + 1][kingLocation[1] + 1] EQUALS 'wp':
-
-                        checks.append((kingLocation[0] + 1, kingLocation[1] + 1))
-
-                IF kingLocation[1] != 0:
-
-                    IF board[kingLocation[0] + 1][kingLocation[1] - 1] EQUALS 'wp':
-
-                        checks.append((kingLocation[0] + 1, kingLocation[1] - 1))
-
-        ELSE:
-
-            IF kingLocation[0] != 0:
-
-                IF kingLocation[1] != 7:
-
-                    IF board[kingLocation[0] - 1][kingLocation[1] + 1] EQUALS 'bp':
-
-                        checks.append((kingLocation[0] - 1, kingLocation[1] + 1))
-
-                IF kingLocation[1] != 0:
-
-                    IF board[kingLocation[0] - 1][kingLocation[1] - 1] EQUALS 'bp':
-
-                        checks.append((kingLocation[0] - 1, kingLocation[1] - 1))
-
-        RETURN checks
-
-
-
-    DEFINE FUNCTION findRookQueenChecks(self, kingLocation, board, allyColour, enemyColour):
-
-        SET RCIChecks TO []
-
-        SET RCIPins TO []
-
-        SET checks TO []
-
-        SET potentialPins TO []
-
-        SET pins TO []
-
-        SET r TO kingLocation[0]
-
-        SET c TO kingLocation[1]
-
-        SET boardRow TO board[r]
-
-        SET boardCol TO []
-
-        FOR i IN range(colSize):
-
-            boardCol.append(board[i][c])
-
-        SET boardRowLeft TO boardRow[:c + 1]
-
-        SET boardRowRight TO boardRow[c:]
-
-        SET boardColLeft TO boardCol[:r +1]
-
-        SET boardColRight TO boardCol[r:]
-
-        SET boardRowLeftReorder TO []
-
-        SET boardColLeftReorder TO []
-
-        FOR i IN range(len(boardRowLeft)):
-
-            SET index TO -1 * (i + 1)
-
-            boardRowLeftReorder.append(boardRowLeft[index])
-
-        FOR i IN range(len(boardColLeft)):
-
-            SET index TO -1 * (i + 1)
-
-            boardColLeftReorder.append(boardColLeft[index])
-
-
-
-        SET boardRowLeft TO boardRowLeftReorder
-
-        SET boardColLeft TO boardColLeftReorder
-
-        SET RCIndex TO [boardRowLeft, boardRowRight, boardColLeft, boardColRight]
-
-        FOR i IN range(len(RCIndex)):
-
-            SET alliesFound TO 0
-
-            FOR j IN range(1, len(RCIndex[i])):
-
-                IF RCIndex[i][j][0] EQUALS allyColour:
-
-                    IF alliesFound EQUALS 0:
-
-                        SET alliesFound TO 1
-
-                        potentialPins.append((i, j))
-
-                    ELSE:
-
-                        SET potentialPins TO []
-
-                        break
-
-                ELSEIF RCIndex[i][j][0] EQUALS enemyColour and (RCIndex[i][j][1] EQUALS 'R' or RCIndex[i][j][1] EQUALS 'Q'):
-
-                    IF alliesFound EQUALS 1:
-
-                        RCIPins.append(potentialPins)
-
-                        SET potentialPins TO []
-
-                    ELSE:
-
-                        RCIChecks.append([i, j])
-
-                ELSEIF RCIndex[i][j][0] EQUALS enemyColour and not (RCIndex[i][j][1] EQUALS 'R' or RCIndex[i][j][1] EQUALS 'Q'):
-
-                    break
-
-
-
-        IF RCIPins != []:
-
-            FOR i IN range(len(RCIPins)):
-
-                SET pin TO RCIPins[i]
-
-                SET pin TO pin[0]
-
-                IF pin[0] EQUALS 0:
-
-                    pins.append((r, c - pin[1]))
-
-                ELSEIF pin[0] EQUALS 1:
-
-                    pins.append((r, c + pin[1]))
-
-                ELSEIF pin[0] EQUALS 2:
-
-                    pins.append((r - pin[1], c))
-
-                ELSE:
-
-                    pins.append((r + pin[1], c))
-
-        IF RCIChecks != []:
-
-            SET check TO RCIChecks[0]
-
-            IF check[0] EQUALS 0:
-
-                checks.append((r, c - check[1]))
-
-            ELSEIF check[0] EQUALS 1:
-
-                checks.append((r, c + check[1]))
-
-            ELSEIF check[0] EQUALS 2:
-
-                checks.append((r - check[1], c))
-
-            ELSE:
-
-                checks.append((r + check[1], c))
-
-        RETURN pins, checks
-
-
-
-    DEFINE FUNCTION findBishopQueenChecks(self, kingLocation, board, allyColour, enemyColour):
-
-        SET RCIChecks TO []
-
-        SET RCIPins TO []
-
-        SET checks TO []
-
-        SET potentialPins TO []
-
-        SET pins TO []
-
-        SET directions TO ((1, 1), (-1, -1), (1, -1), (-1, 1))
-
-        SET r TO kingLocation[0]
-
-        SET c TO kingLocation[1]
-
-        SET diagonal1Left TO []
-
-        SET diagonal1Right TO []
-
-        SET diagonal2Left TO []
-
-        SET diagonal2Right TO []
-
-        FOR d IN directions:
-
-            FOR i IN range(8):
-
-                IF 0 <= r + (d[0] * i) <= 7 and 0 <= c + (d[1] * i) <= 7:
-
-                    IF d EQUALS directions[0]:
-
-                        diagonal1Right.append((board[r + (d[0] * i)][c + (d[1] * i)]))
-
-                    ELSEIF d EQUALS directions[1]:
-
-                        diagonal1Left.append((board[r + (d[0] * i)][c + (d[1] * i)]))
-
-                    ELSEIF d EQUALS directions[2]:
-
-                        diagonal2Left.append((board[r + (d[0] * i)][c + (d[1] * i)]))
-
-                    ELSE:
-
-                        diagonal2Right.append((board[r + (d[0] * i)][c + (d[1] * i)]))
-
-                ELSE:
-
-                    break
-
-
-
-        SET RCIndex TO [diagonal1Left, diagonal1Right, diagonal2Left, diagonal2Right]
-
-        FOR i IN range(len(RCIndex)):
-
-            SET alliesFound TO 0
-
-            FOR j IN range(1, len(RCIndex[i])):
-
-                IF RCIndex[i][j][0] EQUALS allyColour:
-
-                    IF alliesFound EQUALS 0:
-
-                        SET alliesFound TO 1
-
-                        potentialPins.append((i, j))
-
-                    ELSE:
-
-                        SET potentialPins TO []
-
-                        break
-
-                ELSEIF RCIndex[i][j][0] EQUALS enemyColour and (RCIndex[i][j][1] EQUALS 'B' or RCIndex[i][j][1] EQUALS 'Q'):
-
-                    IF alliesFound EQUALS 1:
-
-                        RCIPins.append(potentialPins)
-
-                        SET potentialPins TO []
-
-                    ELSE:
-
-                        RCIChecks.append([i, j])
-
-                    break
-
-                ELSEIF RCIndex[i][j][0] EQUALS enemyColour and not (RCIndex[i][j][1] EQUALS 'B' or RCIndex[i][j][1] EQUALS 'Q'):
-
-                    break
-
-
-
-        IF RCIPins != []:
-
-            IF len(RCIPins[0]) EQUALS 1:
-
-                SET x TO 0
-
-            ELSE:
-
-                SET x TO 1
-
-            FOR i IN range(x, len(RCIPins[0])):
-
-                SET pin TO RCIPins[0][i]
-
-                IF pin[0] EQUALS 0:
-
-                    pins.append((r - pin[1], c - pin[1]))
-
-                ELSEIF pin[0] EQUALS 1:
-
-                    pins.append((r + pin[1], c + pin[1]))
-
-                ELSEIF pin[0] EQUALS 2:
-
-                    pins.append((r + pin[1], c - pin[1]))
-
-                ELSE:
-
-                    pins.append((r - pin[1], c + pin[1]))
-
-        IF RCIChecks != []:
-
-            SET check TO RCIChecks[0]
-
-            IF check[0] EQUALS 0:
-
-                checks.append((r - check[1], c - check[1]))
-
-            ELSEIF check[0] EQUALS 1:
-
-                checks.append((r + check[1], c + check[1]))
-
-            ELSEIF check[0] EQUALS 2:
-
-                checks.append((r + check[1], c - check[1]))
-
-            ELSE:
-
-                checks.append((r - check[1], c + check[1]))
-
-        RETURN pins, checks
+END
