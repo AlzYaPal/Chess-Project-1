@@ -58,10 +58,14 @@ class Main:
 
             
     #Stalemate (No Legal Moves + Not In check)
-    def stalemate(self):
+    def stalemate(self, insufficientMaterial):
         font = pygame.font.Font("assets/font/dahliaregictik.ttf", 44)
-        stalemateStr = font.render("Draw By Stalemate!", True, (0, 0, 0))
-        self.screen.blit(stalemateStr, (90, 278))
+        if insufficientMaterial:
+            drawStr = font.render("Insufficient Material", True, (0, 0, 0))
+            self.screen.blit(drawStr, (80, 278))
+        else:
+            stalemateStr = font.render("Draw By Stalemate!", True, (0, 0, 0))
+            self.screen.blit(stalemateStr, (90, 278))
         pygame.display.flip()
         running = True
         while running:
@@ -240,6 +244,7 @@ class Main:
                         for i in range(2):
                             squares.pop(-1)
             if moveMade:
+                insufficientMaterial = False
                 whiteToMove = not whiteToMove #Switch whose turn it is
                 validMoves, inCheck = moves.getValidMoves(whiteToMove, board, previousMove, previousPiece) #Find all the valid moves in the position
                 moveMade = False
@@ -249,6 +254,55 @@ class Main:
                         whiteToMove = not whiteToMove
                     else:
                         inStalemate = True
+                remainingPieces = []
+                for r in range(rowSize):
+                    for c in range(colSize):
+                        if board[r][c] != "--":
+                            remainingPieces.append(board[r][c])
+                if len(remainingPieces) == 2:
+                    inStalemate = True
+                    insufficientMaterial = True
+                elif len(remainingPieces) == 3:
+                    for piece in remainingPieces:
+                        if piece == 'wN' or piece == 'wB' or piece == 'bN' or piece == 'bB':
+                            inStalemate = True
+                            insufficientMaterial = True
+                elif len(remainingPieces) == 4:
+                    if ('wB' in remainingPieces and 'bN' in remainingPieces) or ('bB' in remainingPieces and 'wN' in remainingPieces) or ('wB' in remainingPieces and 'bB' in remainingPieces) or ('wN' in remainingPieces and 'bN' in remainingPieces):
+                        inStalemate = True
+                        insufficientMaterial = True
+                        pass
+                    knightCount = 0
+                    for piece in remainingPieces:
+                        if piece[1] == 'N':
+                            knightCount += 1
+                    if knightCount == 2:
+                        inStalemate = True
+                        insufficientMaterial = True
+                elif len(remainingPieces) == 5:
+                    wKnightCount = 0
+                    bKnightCount = 0
+                    for piece in remainingPieces:
+                        if piece == 'wN' and wKnightCount == 2:
+                            wKnightCount += 1
+                        elif piece == 'bN' and bKnightCount == 2:
+                            bKnightCount += 1
+                        elif piece[1] != 'K':
+                            otherPiece = piece
+                    if (wKnightCount == 2 and (otherPiece == 'bN' or otherPiece == 'bB') or bKnightCount == 2 and (otherPiece == 'wN' or otherPiece == 'wB')):
+                        inStalemate = True
+                        insufficientMaterial = True
+                elif len(remainingPieces) == 6:
+                    wKnightCount = 0
+                    bKnightCount = 0
+                    for piece in remainingPieces:
+                        if piece == 'wN':
+                            wKnightCount += 1
+                        elif piece == 'bN':
+                            bKnightCount += 1
+                    if wKnightCount == 2 and bKnightCount == 2:
+                        inStalemate = True
+                        insufficientMaterial = True
                 promotion = False
 
 
@@ -273,7 +327,7 @@ class Main:
             #Stalemate
             if inStalemate:
                 pygame.display.flip()
-                running = self.stalemate()
+                running = self.stalemate(insufficientMaterial)
                 running = False
             
             pygame.display.flip()         
