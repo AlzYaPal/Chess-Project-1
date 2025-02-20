@@ -1,0 +1,143 @@
+START
+
+Import Libraries:
+
+IMPORT system library
+
+IMPORT pygame library for graphical interface
+
+IMPORT custom modules: intro_screen, chess_engine, colours, graphics, moves, notation, vars
+
+
+Main Class:
+
+
+
+
+PROCEDURE __init__:
+
+	INITIALISE pygame library
+
+	SET screen TO (WIDTH, HEIGHT) (600, 600)
+
+	SET board TO an empty board
+
+	INITIALIZE dictionary for piece images with names and paths
+
+	SET clicks TO 0, squares TO empty list, whiteToMove TO TRUE
+
+	SET icon image
+
+
+PROCEDURE isCheckmate:
+
+	IF whiteToMove:
+
+		DISPLAY "White Wins By Checkmate!"
+
+	ELSE:
+
+		DISPLAY "Black Wins By Checkmate!"
+
+	LOOP until quit event
+
+
+
+
+PROCEDURE isStalemate:
+
+	DISPLAY "Draw By Stalemate!"
+
+	LOOP until quit event:
+
+
+
+
+PROCEDURE mainLoop:
+
+	CREATE Screens object for UI
+
+	INITIALIZE variables: previousMove, previousPiece, promotion, promotionTurn, colour
+
+	CALL moves methods to get valid moves
+
+	SET running TO TRUE
+
+	WHILE running IS TRUE:
+
+		IF whiteToMove IS TRUE:
+
+			SET window title TO "Chess - White To Move"
+
+		ELSE:
+
+			SET window title TO "Chess - Black To Move"
+
+		CLEAR screen
+
+		FOR each event IN pygame events:
+
+			IF event IS quit:
+
+				SET running TO FALSE
+
+			IF event IS keyboard input:
+
+				HANDLE key presses (e.g., colour change, resetting clicks)
+
+			IF event IS mouse click:
+
+				DETERMINE click position
+
+				IF piece IS selected:
+
+					CALL graphics method to show highlights
+
+				IF move IS made:
+
+					UPDATE move-related variables and validate move
+
+					CALL graphics methods to draw board and pieces
+
+				IF moveMade IS TRUE:
+
+					SWITCH turn (whiteToMove)
+
+					VALIDATE moves and check for end conditions (checkmate/stalemate)
+
+					RESET pawn promotion flag
+
+					IF checkmate:
+
+						CALL displayCheckmate(whiteToMove)
+
+						SET running TO FALSE
+
+					IF stalemate:
+
+						CALL displayStalemate()
+
+						SET running TO FALSE
+
+		UPDATE display
+
+
+
+
+PROCEDURE exitGame:
+
+	CALL pygame.quit()
+
+	CALL sys.exit()
+
+
+
+Execution:
+
+CALL __init__
+
+CALL mainLoop
+
+CALL exitGame
+
+END

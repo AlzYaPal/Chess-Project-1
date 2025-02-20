@@ -1,0 +1,57 @@
+START
+
+Import Libraries
+
+IMPORT pygame library
+
+IMPORT vars
+
+CLASS Graphics
+
+
+
+	PROCEDURE drawSquares:
+
+		FOR each square:
+
+			DETERMINE the square's colour (alternating pattern)
+
+			DRAW the square on the screen
+
+	ENDPROCEDURE
+
+
+
+	PROCEDURE drawPieces:
+
+		FOR each square:
+
+			IF a piece exists on the square:
+
+				DRAW the corresponding piece image at the square's position
+
+	ENDPROCEDURE
+
+
+
+	PROCEDURE showHighlights:
+
+		FOR each valid move corresponding to the selected piece:
+
+			DRAW a border round the square
+
+	ENDPROCEDURE
+
+
+
+	PROCEDURE pawnPromotionSquare:
+
+		DETERMINE the position for the pawn promotion options
+
+		DRAW promotion options (bishop, knight, rook, queen) with respective images
+
+		CHANGE the respective pawn into the chosen piece
+
+	ENDPROCEDURE
+
+END

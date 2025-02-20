@@ -1,0 +1,191 @@
+START
+
+Import Libraries
+
+IMPORT chess_engine
+
+IMPORT vars
+
+Class Moves
+
+	PROCEDURE __init__:
+
+		SET all castling condition variables to False (e.g., wKingHasMoved, bKingHasMoved, etc.)
+	
+	ENDPROCEDURE
+
+
+
+	PROCEDURE getKingLocation:
+
+		FOR each row and column in the board:
+
+			IF the piece is a white king:
+
+				STORE its location in wKingLocation
+
+			IF the piece is a black king:
+
+				STORE its location in bKingLocation
+
+	ENDPROCEDURE
+
+
+
+	PROCEDURE getValidMoves:
+
+		CALL getKingLocation to find the location of the King with respect to whose turn it is
+
+		CALL getAllPossibleMoves to get all potential moves in the position (negating checks and pins)
+
+		CALL searchForPinsAndChecks to identify all pins and checks
+
+		IF the king is in check:
+
+			FIND the attacking piece
+
+			LIMIT valid moves to escape the check
+
+				IF the king is in double check:
+
+					RESTRICT moves to king-only moves
+
+					REMOVE invalid moves that would place the king in check
+
+		CHECK for any ability to castle
+
+		RETURN the final list of valid moves and whether the king is in check
+
+	ENDPROCEDURE
+
+
+
+	PROCEDURE getAllPossibleMoves:
+
+		DETERMINE which side is having their move
+
+		FOR each piece on the board:
+
+			IDENTIFY the type of piece
+
+			CALL the respective move function for the piece (e.g., getPawnMoves, getKnightMoves, etc.)
+
+		RETURN the list of all possible moves
+
+	ENDPROCEDURE
+
+
+
+	PROCEDURE castling:
+
+		DETERMINE if castling is allowed for the current side
+
+		VERIFY no pieces are in the way and the king is not in check
+
+		ADD castling moves to the moves list if applicable
+
+	ENDPROCEDURE
+
+
+
+	Piece-Specific Move Functions:
+
+	PROCEDURE getPawnMoves:
+
+		CHECK for forward moves
+
+		CHECK for captures and en passant
+
+	ENDPROCEDURE
+
+
+
+	PROCEDURE getKnightMoves:
+
+		ADD all L-shaped moves that are within the board and valid
+
+
+	ENDPROCEDURE
+
+
+	PROCEDURE getBishopMoves:
+
+		ADD all diagonal moves until blocked
+
+	ENDPROCEDURE
+
+
+
+	PROCEDURE getRookMoves:
+
+		ADD all horizontal and vertical moves until blocked
+
+	ENDPROCEDURE
+
+
+
+	PROCEDURE getQueenMoves:
+
+		COMBINE rook and bishop moves
+
+	ENDPROCEDURE
+
+
+
+	PROCEDURE getKingMoves:
+
+		ADD all adjacent squares
+
+		REMOVE moves that place the king in check
+
+	ENDPROCEDURE
+
+
+
+	PROCEDURE searchForPinsAndChecks:
+
+		SEARCH for knight checks
+
+		SEARCH for pawn checks
+
+		SEARCH for rook, bishop and queen checks and/or pins
+
+		RETURN the lists of pins and checks
+
+	ENDPROCEDURE
+
+
+
+	Helper Functions:
+
+	PROCEDURE findKnightChecks:
+
+		FIND all knight attacks on the king
+
+	ENDPROCEDURE
+
+
+
+	PROCEDURE findPawnChecks:
+
+		FIND all pawn attacks on the king
+
+	ENDPROCEDURE
+
+
+
+	PROCEDURE findRookQueenChecks:
+
+		IDENTIFY potential pins and checks from rooks and queens
+
+	ENDPROCEDURE
+
+
+
+	PROCEDURE findBishopQueenChecks:
+
+		IDENTIFY potential pins and checks from bishops and queens
+
+	ENDPROCEDURE
+
+END
