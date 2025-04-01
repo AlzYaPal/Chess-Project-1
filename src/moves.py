@@ -11,12 +11,12 @@ class Moves:
         self.engine = Engine()
 
         #Original Location of the Kings
-        for r in range(rowSize):
-            for c in range(colSize):
-                if board[r][c] == "wK":
-                    self.wKingLocation = (r, c)
-                elif board[r][c] == "bK":
-                    self.bKingLocation = (r, c)
+        for row in range(rowSize):
+            for col in range(colSize):
+                if board[row][col] == "wK":
+                    self.wKingLocation = (row, col)
+                elif board[row][col] == "bK":
+                    self.bKingLocation = (row, col)
 
         #Sets the castling condition variables all to false (i.e. the Kings can castle if there are no pieces in the way)
         self.wKingHasMoved = self.bKingHasMoved = self.wRook1HasMoved = self.wRook2HasMoved = self.bRook1HasMoved = self.bRook2HasMoved = False
@@ -24,15 +24,15 @@ class Moves:
     #Gets the location of the King of the side who are moving this go
     def getKingLocation(self, whiteToMove, board):
         if whiteToMove:
-            for r in range(rowSize):
-                for c in range(colSize):
-                    if board[r][c] == "wK":
-                        return (r, c)
+            for row in range(rowSize):
+                for col in range(colSize):
+                    if board[row][col] == "wK":
+                        return (row, col)
         else:
-            for r in range(rowSize):
-                for c in range(colSize):
-                    if board[r][c] == "bK":
-                        return (r, c)
+            for row in range(rowSize):
+                for col in range(colSize):
+                    if board[row][col] == "bK":
+                        return (row, col)
 
     #Calls the getAllPossibleMoves function and removes any illegal moves
     def getValidMoves(self, whiteToMove, board, moveLog, prevPiece):

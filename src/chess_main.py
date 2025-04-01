@@ -255,10 +255,10 @@ class Main:
                     else:
                         inStalemate = True
                 remainingPieces = []
-                for r in range(rowSize):
-                    for c in range(colSize):
-                        if board[r][c] != "--":
-                            remainingPieces.append(board[r][c])
+                for row in range(rowSize):
+                    for col in range(colSize):
+                        if board[row][col] != "--":
+                            remainingPieces.append(board[row][col])
                 if len(remainingPieces) == 2:
                     inStalemate = True
                     insufficientMaterial = True
