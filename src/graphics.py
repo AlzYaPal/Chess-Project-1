@@ -23,7 +23,7 @@ class Graphics:
                 if str(coords[0]) == move[0] and str(coords[1]) == move[1]:
                     rect = pygame.draw.rect(screen, (50, 0, 0), pygame.Rect(int(move[3]) * squareSize, int(move[2]) * squareSize, squareSize, squareSize), 10)
 
-    def pawnPromotionSquare(screen, row, col, bishop, knight, rook, queen, colour):
+    def pawnPromotionSquare(screen, row, col, bishop, knight, rook, queen, colour): #Graphics for Pawn Promotion
         if (row + col) % 2 == 0:
             pygame.draw.rect(screen, (255, 255, 255), (col * squareSize, row * squareSize, squareSize, squareSize))
         else:

@@ -56,14 +56,14 @@ class Moves:
                 check = checks[0] #Formats the list so that it is 1D
                 newBoard = board
                 blockOrTake = []
-                if kingLocation[0] == check[0]:
+                if kingLocation[0] == check[0]: #Finding the direction and the distance of the checking piece from the King (Horizontal)
                     diffX = 0
                 elif kingLocation[0] < check[0]:
                     diffX = -1
                 else:
                     diffX = 1
 
-                if kingLocation[1] == check[1]:
+                if kingLocation[1] == check[1]: #Finding the direction and the distance of the checking piece from the King (Vertical)
                     diffY = 0
                 elif kingLocation[1] < check[1]:
                     diffY = -1
@@ -71,7 +71,7 @@ class Moves:
                     diffY = 1
                 distance = [kingLocation[0] - check[0], kingLocation[1] - check[1]]
                 
-                absDistance = distance
+                absDistance = distance #Setting the absolute distance so that the blockOrTake list can be appended properly
                 if distance[0] < 0:
                     absDistance[0] *= -1
                 if distance[1] < 0:
@@ -82,7 +82,7 @@ class Moves:
 
                 loopDistance = absDistance[0] if absDistance[0] != 0 else absDistance[1]
 
-                for i in range(loopDistance):
+                for i in range(loopDistance): #Adding the squares on which the check can be blocked or the checking piece can be taken
                     if distance[0] == 0:
                         absDistance[0] = 1
                     if distance[1] == 0:
@@ -95,11 +95,11 @@ class Moves:
                     if board[check[0]][check[1]][1] == "N":
                         blockOrTake = [check]
 
-                    if move[0:2] == strKingLocation:
+                    if move[0:2] == strKingLocation: #Checking for King moves (ensuring that the King can't take a piece that would mean that he would be in check)
                         squares = [int(move[0]), int(move[1]), int(move[2]), int(move[3])]
 
                         engine.moveLog.append((move, board[squares[2]][squares[3]]))
-                        newBoard[squares[2]][squares[3]] = newBoard[squares[0]][squares[1]]
+                        newBoard[squares[2]][squares[3]] = newBoard[squares[0]][squares[1]] #Making the move in question to check its validity
                         newBoard[squares[0]][squares[1]] = "--"
                         newMoves = self.getAllPossibleMoves(not whiteToMove, newBoard, True, '', '')
                         move = engine.moveLog[-1]
@@ -124,7 +124,7 @@ class Moves:
                 newBoard = board
                 for i in range(len(moves)):
                     move = moves[i]
-                    if move[0:2] == strKingLocation:
+                    if move[0:2] == strKingLocation: #Checking King moves again - two checks mean that blocking or taking is not possible as the King would still be in check from the other piece
                         squares = [int(move[0]), int(move[1]), int(move[2]), int(move[3])]
                         engine.moveLog.append((move, board[squares[2]][squares[3]]))
                         newBoard[squares[2]][squares[3]] = newBoard[squares[0]][squares[1]]

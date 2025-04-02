@@ -76,8 +76,6 @@ class Main:
 
     #Main Game Loop
     def mainLoop(self):
-        screens = Screens()
-        val = screens.screenNum(self.screen)
         previousMove = ''
         previousPiece = ''
         promotion = False
@@ -96,6 +94,7 @@ class Main:
         notation = Notation()
         running = True
         while running:
+            #Displays whose turn it is to move
             if whiteToMove:
                 pygame.display.set_caption("Chess - White To Move")
             else:
@@ -157,7 +156,7 @@ class Main:
                             
 
                     
-                    if board[squares[-2]][squares[-1]] != "--" and self.clicks == 0 and not promotion:
+                    if board[squares[-2]][squares[-1]] != "--" and self.clicks == 0 and not promotion: #If a piece has been selected and pawn promotion is NOT taking place
                         self.clicks = 1
                         allyColour = 'w' if whiteToMove else 'b'
                     elif self.clicks == 1 and board[pos[1] // squareSize][pos[0] // squareSize][0] != allyColour: #If a possible move is made
@@ -306,12 +305,12 @@ class Main:
                 promotion = False
 
 
-            #Setting up the board
+            #Setting up the board and pieces
             Graphics.drawSquares(screen, colours[colour])
             Graphics.drawPieces(screen, board, self.pieces)
             if self.clicks == 1:
-                Graphics.showHighlights(screen, validMoves, squares)
-            if promotion:
+                Graphics.showHighlights(screen, validMoves, squares) #Highlights the squares if a piece is selected
+            if promotion: #Sets up the Pawn Promotion Variables
                 whiteToMove = promotionTurn
                 validMoves = []
                 if whiteToMove:
