@@ -285,10 +285,13 @@ class Moves:
                 if (board[r+1][c+1] != "--" and board[r+1][c+1][0] != colour and r != 0) or (not checkKingMoves and board[r+1][c+1][0] == colour):
                     moves.append(str(r) + str(c) + str(r+1) + str(c+1))
             if prevPiece == 'p':
-                if int(moveLog[0][0]) - int(moveLog[0][2]) == 2 and board[int(moveLog[0][2])][int(moveLog[0][3]) - 1] == 'bp':
-                    moves.append(str(r) + str(c) + str(r + 1) + str(c + 1))
-                elif int(moveLog[0][0]) - int(moveLog[0][2]) == 2 and board[int(moveLog[0][2])][int(moveLog[0][3]) + 1] == 'bp':
-                    moves.append(str(r) + str(c) + str(r + 1) + str(c - 1))
+
+                if int(moveLog[0][3]) != 0:
+                    if int(moveLog[0][0]) - int(moveLog[0][2]) == 2 and board[int(moveLog[0][2])][int(moveLog[0][3]) - 1] == 'bp':
+                        moves.append(str(r) + str(c) + str(r + 1) + str(c + 1))
+                if int(moveLog[0][3]) != 7:
+                    if int(moveLog[0][0]) - int(moveLog[0][2]) == 2 and board[int(moveLog[0][2])][int(moveLog[0][3]) + 1] == 'bp':
+                        moves.append(str(r) + str(c) + str(r + 1) + str(c - 1))
             
             
 

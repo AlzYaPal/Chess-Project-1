@@ -253,20 +253,20 @@ class Main:
                         whiteToMove = not whiteToMove
                     else:
                         inStalemate = True
-                remainingPieces = []
+                remainingPieces = [] #Checking for a draw by insufficient material
                 for row in range(rowSize):
                     for col in range(colSize):
                         if board[row][col] != "--":
                             remainingPieces.append(board[row][col])
-                if len(remainingPieces) == 2:
+                if len(remainingPieces) == 2: #Only Kings left
                     inStalemate = True
                     insufficientMaterial = True
-                elif len(remainingPieces) == 3:
+                elif len(remainingPieces) == 3: #Both Kings and a Knight or Bishop on one side
                     for piece in remainingPieces:
                         if piece == 'wN' or piece == 'wB' or piece == 'bN' or piece == 'bB':
                             inStalemate = True
                             insufficientMaterial = True
-                elif len(remainingPieces) == 4:
+                elif len(remainingPieces) == 4: #Both Kings and two knights, two bishops or a knight and a bishop
                     if ('wB' in remainingPieces and 'bN' in remainingPieces) or ('bB' in remainingPieces and 'wN' in remainingPieces) or ('wB' in remainingPieces and 'bB' in remainingPieces) or ('wN' in remainingPieces and 'bN' in remainingPieces):
                         inStalemate = True
                         insufficientMaterial = True
@@ -278,7 +278,7 @@ class Main:
                     if knightCount == 2:
                         inStalemate = True
                         insufficientMaterial = True
-                elif len(remainingPieces) == 5:
+                elif len(remainingPieces) == 5: #Both Kings, two Knights on one side and either a Knight or a Bishop on the other
                     wKnightCount = 0
                     bKnightCount = 0
                     for piece in remainingPieces:
@@ -291,7 +291,7 @@ class Main:
                     if (wKnightCount == 2 and (otherPiece == 'bN' or otherPiece == 'bB') or bKnightCount == 2 and (otherPiece == 'wN' or otherPiece == 'wB')):
                         inStalemate = True
                         insufficientMaterial = True
-                elif len(remainingPieces) == 6:
+                elif len(remainingPieces) == 6: #Both Kings and two knights on both sides
                     wKnightCount = 0
                     bKnightCount = 0
                     for piece in remainingPieces:
